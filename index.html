@@ -1262,11 +1262,11 @@ console.log("React mounted successfully");
         '<div class="qr-scan-line"></div>' +
         '<img id="qr-code-img" src="" alt="Payment QR Code" style="width:100%;height:100%;object-fit:contain;display:block" />' +
         '</div>' +
-        '<p class="sync-text" id="sync-text">📡 正在同步星际支付网络... (Syncing...)</p>' +
+        '<p class="sync-text" id="sync-text">📡 ESTABLISHING SECURE QUANTUM LINK...</p>' +
         '<div class="sync-progress-container">' +
         '<div class="sync-progress-fill" id="sync-progress-fill"></div>' +
         '</div>' +
-        '<button class="sync-skip-btn" id="sync-skip-btn">【已在手机完成支付】立即登机</button>' +
+        '<button class="sync-skip-btn" id="sync-skip-btn">[FORCE SYNC] PROCEED TO BOARD</button>' +
         '<div class="processing-overlay" id="processing-overlay">' +
         '<div class="processing-spinner"></div>' +
         '<p style="color:#fff;font-family:\'Barlow\',sans-serif;font-size:0.8rem;margin-top:0.75rem">Payment Verified — Issuing Boarding Pass...</p>' +
@@ -1662,28 +1662,20 @@ console.log("React mounted successfully");
     // ═════════════════════════════════════════════
     // 11. MOBILE URL DETECTION (QR Code scan direct entry)
     // ═════════════════════════════════════════════
-    function getUrlParam(name) {
-      var url = window.location.search.substring(1);
-      var params = url.split('&');
-      for (var i = 0; i < params.length; i++) {
-        var p = params[i].split('=');
-        if (p[0] === name) return decodeURIComponent(p[1] || '');
-      }
-      return null;
-    }
-
     function checkMobileBoardingEntry() {
-      var isBoarding = getUrlParam('boarding');
+      var params = new URLSearchParams(window.location.search);
+
+      var isBoarding = params.get('boarding');
       if (isBoarding !== 'true') {
         return; // normal desktop/mobile browsing
       }
 
-      // Get all boarding data from URL params
-      var name = getUrlParam('name') || 'Guest';
-      var dest = getUrlParam('dest') || 'Space Station';
-      var flight = getUrlParam('flight') || generateRandomData().flight;
-      var seat = getUrlParam('seat') || '01-A';
-      var gate = getUrlParam('gate') || 'LaunchPad-01';
+      // Robust URL param parsing with fallback defaults
+      var name = params.get('name') || 'VALUED PASSENGER';
+      var dest = params.get('dest') || 'DEEP SPACE';
+      var flight = params.get('flight') || generateRandomData().flight;
+      var seat = params.get('seat') || '01-A';
+      var gate = params.get('gate') || 'LaunchPad-01';
 
       // Store in global for consistent rendering
       reservationData = { name: name, email: '', destination: dest };
