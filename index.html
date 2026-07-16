@@ -7,28 +7,29 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
-  window.tailwind = {
-    config: {
-      theme: {
-        extend: {
-          fontFamily: {
-            heading: ["'Instrument Serif'", "serif"],
-            body: ["'Barlow'", "sans-serif"],
-          },
-          borderRadius: {
-            DEFAULT: "9999px",
-          },
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          heading: ["'Instrument Serif'", "serif"],
+          body: ["'Barlow'", "sans-serif"],
+        },
+        borderRadius: {
+          DEFAULT: "9999px",
         },
       },
     },
   };
+  console.log("Tailwind config set, tailwind defined:", typeof tailwind !== 'undefined');
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; background: #000; }
-  body { margin: 0; background: #000; color: #fff; }
+  body { margin: 0; background: #000; color: #fff; min-height: 100vh; }
+  /* Ensure Framer Motion elements are visible by default */
+  #root [style*="opacity:0"] { opacity: 1 !important; }
 
   .liquid-glass {
     background: rgba(255,255,255,0.01);
@@ -839,6 +840,7 @@ function App() {
 // ─── Mount ─────────────────────────────────────────────────────
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(h(App));
+console.log("React mounted successfully");
 </script>
 
 <!-- ═══════════════════════════════════════════════
