@@ -365,6 +365,156 @@
 
   /* ── Body scroll lock ── */
   body.no-scroll { overflow: hidden; }
+
+  /* ═══════════════════════════════════════════════
+     PAYMENT & BOARDING PASS CSS
+     ═══════════════════════════════════════════════ */
+
+  /* ── Payment Modal ── */
+  .payment-overlay {
+    position: fixed; inset: 0; z-index: 210;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .payment-overlay.active { opacity: 1; pointer-events: auto; }
+  .payment-panel {
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    max-width: 440px; width: 90%;
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.35s cubic-bezier(0.25,0.8,0.25,1.2);
+  }
+  .payment-overlay.active .payment-panel { transform: translateY(0) scale(1); }
+
+  /* ── Payment Tabs ── */
+  .payment-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .payment-tab {
+    flex: 1; padding: 0.6rem; border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.6);
+    font-family: 'Barlow',sans-serif; font-size: 0.8rem; font-weight: 500;
+    cursor: pointer; text-align: center;
+    transition: all 0.25s;
+  }
+  .payment-tab.active { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.4); }
+
+  /* ── QR Code Container ── */
+  .qr-container {
+    width: 180px; height: 180px; margin: 1.25rem auto;
+    background: #fff; border-radius: 1rem; padding: 10px;
+    position: relative; overflow: hidden;
+  }
+  .qr-scan-line {
+    position: absolute; left: 10px; right: 10px; height: 2px;
+    background: rgba(0,200,255,0.8);
+    box-shadow: 0 0 12px rgba(0,200,255,0.6);
+    animation: scanMove 2s ease-in-out infinite;
+    border-radius: 1px; z-index: 2;
+  }
+  @keyframes scanMove {
+    0% { top: 10px; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { top: calc(100% - 14px); opacity: 0; }
+  }
+  .qr-code-svg { width: 100%; height: 100%; display: block; }
+
+  /* ── Processing Spinner ── */
+  .processing-overlay {
+    position: absolute; inset: 0; z-index: 5;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border-radius: 1.5rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .processing-overlay.active { opacity: 1; pointer-events: auto; }
+  .processing-spinner {
+    width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.2);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Boarding Pass ── */
+  .boarding-overlay {
+    position: fixed; inset: 0; z-index: 220;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .boarding-overlay.active { opacity: 1; pointer-events: auto; }
+  .boarding-pass {
+    background: linear-gradient(135deg, #0a0a0f 0%, #111122 50%, #0a0a14 100%);
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    max-width: 440px; width: 90%;
+    position: relative;
+    font-family: 'Barlow',sans-serif;
+    box-shadow: 0 0 60px rgba(100,150,255,0.15), 0 0 120px rgba(100,100,255,0.08);
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.35s cubic-bezier(0.25,0.8,0.25,1.2);
+  }
+  .boarding-overlay.active .boarding-pass { transform: translateY(0) scale(1); }
+  .boarding-pass::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(135deg, rgba(100,150,255,0.05), transparent, rgba(100,150,255,0.05));
+    pointer-events: none;
+  }
+  .bp-header { text-align: center; margin-bottom: 1.25rem; }
+  .bp-title { font-family: 'Instrument Serif',serif; font-style: italic; font-size: 1.5rem; color: #fff; letter-spacing: -0.5px; }
+  .bp-subtitle { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 3px; margin-top: 0.25rem; }
+  .bp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .bp-field { padding: 0.6rem 0.75rem; background: rgba(255,255,255,0.03); border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.06); }
+  .bp-label { font-size: 0.6rem; text-transform: uppercase; color: rgba(255,255,255,0.35); letter-spacing: 1px; margin-bottom: 0.2rem; }
+  .bp-value { font-size: 0.9rem; color: #fff; font-weight: 500; }
+  .bp-value.highlight { color: #7cb8ff; font-weight: 600; }
+  .bp-barcode {
+    margin-top: 1.25rem; padding-top: 1.25rem;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .bp-barcode svg { width: 100%; max-width: 280px; height: 50px; }
+  .bp-barcode-text { font-size: 0.65rem; color: rgba(255,255,255,0.3); letter-spacing: 4px; margin-top: 0.4rem; }
+  .bp-complete-btn {
+    margin-top: 1.5rem; width: 100%;
+    padding: 0.75rem; border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    color: #fff; font-family: 'Barlow',sans-serif; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .bp-complete-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+
+  /* ── Confetti ── */
+  .confetti-piece {
+    position: fixed; z-index: 500; pointer-events: none;
+    animation: confettiFall var(--fall-duration) linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(var(--rot)) scale(0.3); opacity: 0; }
+  }
+
+  /* ── Email error ── */
+  .input-error { border-color: rgba(255,80,80,0.6) !important; }
+  .error-text { color: #ff6b6b; font-size: 0.7rem; font-family: 'Barlow',sans-serif; margin-top: 0.25rem; display: none; }
+  .error-text.visible { display: block; }
 </style>
 </head>
 <body>
@@ -712,12 +862,12 @@ function Hero() {
         },
           h("div", { className: "liquid-glass p-5 w-[220px] rounded-[1.25rem]" },
             h(ClockIcon, { className: "text-white" }),
-            h("div", { className: "stat-number font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2", "data-stat-value": "34.5", "data-stat-suffix": " Min" }, "34.5 Min"),
+            h("div", { className: "stat-number font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2", "data-stat-value": "34.5", "data-stat-suffix": " Min" }, "0 Min"),
             h("p", { className: "text-xs text-white font-body font-light mt-2" }, "Average Videos Watch Time")
           ),
           h("div", { className: "liquid-glass p-5 w-[220px] rounded-[1.25rem]" },
             h(GlobeIcon, { className: "text-white" }),
-            h("div", { className: "stat-number font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2", "data-stat-value": "2.8", "data-stat-suffix": "B+" }, "2.8B+"),
+            h("div", { className: "stat-number font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2", "data-stat-value": "2.8", "data-stat-suffix": "B+" }, "0B+"),
             h("p", { className: "text-xs text-white font-body font-light mt-2" }, "Users Across the Globe")
           )
         ),
@@ -855,12 +1005,33 @@ console.log("React mounted successfully");
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', fn);
     } else {
-      // Small delay to let React finish
       setTimeout(fn, 50);
     }
   }
 
   onReady(function() {
+
+    // ═════════════════════════════════════════════
+    // GLOBAL STATE
+    // ═════════════════════════════════════════════
+    var reservationData = { name: '', email: '', destination: '' };
+    var cartCount = 0;
+    var cartCountEl;
+    var menuOpen = false;
+
+    var modalOverlay, modalPanel;
+    var toastContainer;
+    var paymentOverlay, paymentPanel;
+    var boardingOverlay, boardingPass;
+
+    // ═════════════════════════════════════════════
+    // PRICING DATA
+    // ═════════════════════════════════════════════
+    var pricing = {
+      'Mars Orbit': 150000,
+      'Lunar Base': 80000,
+      'Deep Space': 500000
+    };
 
     // ═════════════════════════════════════════════
     // 1. RIPPLE EFFECT
@@ -882,63 +1053,8 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 2. MODAL SYSTEM
+    // 2. TOAST SYSTEM
     // ═════════════════════════════════════════════
-    var modalOverlay, modalPanel;
-
-    function createModal() {
-      modalOverlay = document.createElement('div');
-      modalOverlay.className = 'modal-overlay';
-      modalOverlay.innerHTML = '<div class="modal-panel" style="position:relative">' +
-        '<button class="modal-close">&times;</button>' +
-        '<h3 style="font-family:\'Instrument Serif\',serif;font-style:italic;color:#fff;font-size:1.75rem;margin:0 0 0.5rem;letter-spacing:-1px">Launch Your Voyage</h3>' +
-        '<p style="color:rgba(255,255,255,0.6);font-family:\'Barlow\',sans-serif;font-size:0.8rem;margin:0 0 1.5rem;line-height:1.4">Reserve your seat aboard the next-generation spacecraft. A crew specialist will contact you within 24 hours.</p>' +
-        '<div style="display:flex;flex-direction:column;gap:0.75rem">' +
-        '<input class="modal-input" type="text" placeholder="Full Name" />' +
-        '<input class="modal-input" type="email" placeholder="Email Address" />' +
-        '<select class="modal-input" style="appearance:none;cursor:pointer"><option value="">Select Destination</option><option>Mars Orbit</option><option>Lunar Base</option><option>Deep Space</option></select>' +
-        '<button class="modal-submit" id="modal-submit-btn">Confirm Reservation</button>' +
-        '</div></div>';
-      document.body.appendChild(modalOverlay);
-      modalPanel = modalOverlay.querySelector('.modal-panel');
-
-      // Close handlers
-      modalOverlay.addEventListener('click', function(e) {
-        if (e.target === modalOverlay) closeModal();
-      });
-      modalOverlay.querySelector('.modal-close').addEventListener('click', closeModal);
-      modalOverlay.querySelector('#modal-submit-btn').addEventListener('click', function() {
-        closeModal();
-        showToast('Reservation confirmed! Welcome aboard.');
-        triggerCartPop();
-      });
-    }
-
-    function openModal() {
-      if (!modalOverlay) createModal();
-      modalOverlay.classList.add('active');
-      document.body.classList.add('no-scroll');
-    }
-
-    function closeModal() {
-      modalOverlay.classList.remove('active');
-      document.body.classList.remove('no-scroll');
-    }
-
-    // Bind CTAs to modal
-    function bindModalTriggers() {
-      document.querySelectorAll('[data-cta="claim-spot"], [data-cta="start-voyage"]').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          openModal();
-        });
-      });
-    }
-
-    // ═════════════════════════════════════════════
-    // 3. TOAST NOTIFICATION SYSTEM
-    // ═════════════════════════════════════════════
-    var toastContainer;
-
     function createToastContainer() {
       toastContainer = document.createElement('div');
       toastContainer.className = 'toast-container';
@@ -957,11 +1073,335 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 4. CART BADGE
+    // 3. RESERVATION MODAL
     // ═════════════════════════════════════════════
-    var cartCount = 0;
-    var cartCountEl;
+    function createModal() {
+      modalOverlay = document.createElement('div');
+      modalOverlay.className = 'modal-overlay';
+      modalOverlay.innerHTML = '<div class="modal-panel" style="position:relative">' +
+        '<button class="modal-close" id="modal-close-btn">&times;</button>' +
+        '<h3 style="font-family:\'Instrument Serif\',serif;font-style:italic;color:#fff;font-size:1.75rem;margin:0 0 0.5rem;letter-spacing:-1px">Launch Your Voyage</h3>' +
+        '<p style="color:rgba(255,255,255,0.6);font-family:\'Barlow\',sans-serif;font-size:0.8rem;margin:0 0 1.5rem;line-height:1.4">Reserve your seat aboard the next-generation spacecraft. A crew specialist will contact you within 24 hours.</p>' +
+        '<div style="display:flex;flex-direction:column;gap:0.75rem">' +
+        '<input class="modal-input" id="modal-name" type="text" placeholder="Full Name" />' +
+        '<div><input class="modal-input" id="modal-email" type="email" placeholder="Email Address" /><span class="error-text" id="email-error">Please enter a valid email address</span></div>' +
+        '<select class="modal-input" id="modal-destination" style="appearance:none;cursor:pointer"><option value="">Select Destination</option><option>Mars Orbit</option><option>Lunar Base</option><option>Deep Space</option></select>' +
+        '<button class="modal-submit" id="modal-submit-btn">Confirm Reservation</button>' +
+        '</div></div>';
+      document.body.appendChild(modalOverlay);
+      modalPanel = modalOverlay.querySelector('.modal-panel');
 
+      // Close handlers
+      modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) { closeModal(); resetForm(); }
+      });
+      modalOverlay.querySelector('#modal-close-btn').addEventListener('click', function() {
+        closeModal(); resetForm();
+      });
+
+      // Submit handler with validation
+      modalOverlay.querySelector('#modal-submit-btn').addEventListener('click', function() {
+        handleReservationSubmit();
+      });
+    }
+
+    function openModal() {
+      if (!modalOverlay) createModal();
+      resetForm();
+      modalOverlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+
+    function closeModal() {
+      if (modalOverlay) modalOverlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+
+    function resetForm() {
+      var nameEl = document.getElementById('modal-name');
+      var emailEl = document.getElementById('modal-email');
+      var destEl = document.getElementById('modal-destination');
+      var errorEl = document.getElementById('email-error');
+      if (nameEl) nameEl.value = '';
+      if (emailEl) { emailEl.value = ''; emailEl.classList.remove('input-error'); }
+      if (destEl) destEl.selectedIndex = 0;
+      if (errorEl) errorEl.classList.remove('visible');
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function handleReservationSubmit() {
+      var nameEl = document.getElementById('modal-name');
+      var emailEl = document.getElementById('modal-email');
+      var destEl = document.getElementById('modal-destination');
+      var errorEl = document.getElementById('email-error');
+
+      var name = (nameEl && nameEl.value || '').trim();
+      var email = (emailEl && emailEl.value || '').trim();
+      var destination = destEl && destEl.value || '';
+
+      // Validate email
+      if (!isValidEmail(email)) {
+        if (emailEl) emailEl.classList.add('input-error');
+        if (errorEl) errorEl.classList.add('visible');
+        showToast('Please enter a valid email address');
+        return;
+      }
+      if (emailEl) emailEl.classList.remove('input-error');
+      if (errorEl) errorEl.classList.remove('visible');
+
+      if (!name) { showToast('Please enter your name'); return; }
+      if (!destination) { showToast('Please select a destination'); return; }
+
+      // Store reservation data
+      reservationData = { name: name, email: email, destination: destination };
+
+      // Close reservation modal & open payment
+      closeModal();
+      setTimeout(function() { openPaymentModal(); }, 350);
+    }
+
+    // ═════════════════════════════════════════════
+    // 4. PAYMENT MODAL
+    // ═════════════════════════════════════════════
+    function createPaymentModal() {
+      paymentOverlay = document.createElement('div');
+      paymentOverlay.className = 'payment-overlay';
+      paymentOverlay.innerHTML =
+        '<div class="payment-panel" style="position:relative">' +
+        '<button class="modal-close" id="payment-close-btn" style="position:absolute;top:1rem;right:1rem">&times;</button>' +
+        '<h3 style="font-family:\'Instrument Serif\',serif;font-style:italic;color:#fff;font-size:1.5rem;margin:0 0 0.25rem;letter-spacing:-0.5px">Space-Travel Payment Gateway</h3>' +
+        '<p style="color:rgba(255,255,255,0.5);font-family:\'Barlow\',sans-serif;font-size:0.75rem;margin:0 0 1rem" id="payment-destination-label">Destination: —</p>' +
+        '<div style="background:rgba(255,255,255,0.04);border-radius:0.75rem;padding:1rem;margin-bottom:1rem;text-align:center">' +
+        '<span style="color:rgba(255,255,255,0.5);font-size:0.7rem;font-family:\'Barlow\',sans-serif">TOTAL</span>' +
+        '<div style="font-family:\'Instrument Serif\',serif;font-style:italic;color:#fff;font-size:2rem;letter-spacing:-1px" id="payment-amount">0</div>' +
+        '<span style="color:rgba(255,255,255,0.4);font-size:0.7rem;font-family:\'Barlow\',sans-serif">Credits</span>' +
+        '</div>' +
+        '<div class="payment-tabs">' +
+        '<button class="payment-tab active" data-payment="wechat">WeChat Pay</button>' +
+        '<button class="payment-tab" data-payment="alipay">Alipay</button>' +
+        '</div>' +
+        '<div class="qr-container">' +
+        '<div class="qr-scan-line"></div>' +
+        '<svg class="qr-code-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">' +
+        '<rect width="160" height="160" fill="#fff"/>' +
+        generateQRPattern() +
+        '</svg>' +
+        '</div>' +
+        '<button class="modal-submit" id="simulate-pay-btn" style="margin-top:1rem">[Simulate Scan] Pay Now</button>' +
+        '<div class="processing-overlay" id="processing-overlay">' +
+        '<div class="processing-spinner"></div>' +
+        '<p style="color:#fff;font-family:\'Barlow\',sans-serif;font-size:0.8rem;margin-top:0.75rem">Processing Payment...</p>' +
+        '</div>' +
+        '</div>';
+      document.body.appendChild(paymentOverlay);
+      paymentPanel = paymentOverlay.querySelector('.payment-panel');
+
+      // Close
+      paymentOverlay.querySelector('#payment-close-btn').addEventListener('click', function() {
+        closePaymentModal();
+      });
+      paymentOverlay.addEventListener('click', function(e) {
+        if (e.target === paymentOverlay) closePaymentModal();
+      });
+
+      // Payment tabs
+      paymentOverlay.querySelectorAll('.payment-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          paymentOverlay.querySelectorAll('.payment-tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+        });
+      });
+
+      // Simulate payment
+      paymentOverlay.querySelector('#simulate-pay-btn').addEventListener('click', function() {
+        simulatePayment();
+      });
+    }
+
+    function generateQRPattern() {
+      var cells = '';
+      var patterns = [
+        [0,0,0,0,0,0,0,1,1,0,1,0,0,0,1,0,0,1,1,1,0,0,0,0,0,0,0],
+        [0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,0],
+        [0,1,0,0,0,1,0,0,1,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0],
+        [0,1,0,0,0,1,0,1,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,0,0,1,0],
+        [0,1,0,0,0,1,0,0,0,1,1,0,0,1,1,0,1,0,1,1,0,1,0,0,0,1,0],
+        [0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,0],
+        [0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0],
+        [1,1,1,1,1,1,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,1,1,1,1,1],
+        [1,1,0,0,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,0,0,1,1],
+        [1,0,1,1,0,1,1,0,0,1,0,0,1,0,0,1,0,1,0,0,1,1,0,1,1,0,1],
+        [0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,1,0],
+        [1,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,1],
+        [0,0,1,0,1,0,1,0,0,1,0,0,1,0,0,1,0,0,0,1,0,1,0,1,0,0,1],
+        [1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1],
+        [0,1,0,1,0,1,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,1,0,1,0],
+        [1,0,0,1,1,0,0,0,1,0,1,0,1,0,0,0,1,0,1,0,0,1,1,0,0,0,1],
+        [1,1,0,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,1,0,1,1],
+        [1,0,1,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1],
+        [0,1,0,0,1,1,0,0,1,0,1,0,0,1,0,1,1,0,0,1,0,0,1,0,1,1,0],
+        [1,0,1,0,1,0,1,1,0,0,0,1,0,1,1,0,0,0,0,0,1,1,0,0,1,0,1],
+        [1,1,1,1,1,1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,1,0,1,1],
+        [0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,0],
+        [0,1,1,1,1,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,1,0],
+        [0,1,0,0,0,1,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,0,0,1],
+        [0,1,0,0,0,1,0,0,0,1,0,0,0,1,1,0,0,1,0,0,1,0,0,1,0,1,0],
+        [0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,0,1,0],
+        [0,1,1,1,1,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,0,0],
+        [0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,0,1,1,0,1,0]
+      ];
+      for (var y = 0; y < patterns.length; y++) {
+        for (var x = 0; x < patterns[y].length; x++) {
+          if (patterns[y][x] === 1) {
+            var cx = 16 + x * 4.8;
+            var cy = 16 + y * 4.8;
+            cells += '<rect x="' + cx + '" y="' + cy + '" width="3.5" height="3.5" rx="0.5" fill="#111"/>';
+          }
+        }
+      }
+      return cells;
+    }
+
+    function openPaymentModal() {
+      if (!paymentOverlay) createPaymentModal();
+      var dest = reservationData.destination;
+      var price = pricing[dest] || 0;
+      document.getElementById('payment-destination-label').textContent = 'Destination: ' + dest + ' | Passenger: ' + reservationData.name;
+      document.getElementById('payment-amount').textContent = price.toLocaleString();
+      document.getElementById('processing-overlay').classList.remove('active');
+      paymentOverlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+
+    function closePaymentModal() {
+      if (paymentOverlay) paymentOverlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+
+    function simulatePayment() {
+      var proc = document.getElementById('processing-overlay');
+      proc.classList.add('active');
+      setTimeout(function() {
+        proc.classList.remove('active');
+        closePaymentModal();
+        showToast('Payment Successful! Ticket Issued.');
+        triggerCartPop();
+        setTimeout(function() { openBoardingPass(); }, 500);
+      }, 1500);
+    }
+
+    // ═════════════════════════════════════════════
+    // 5. BOARDING PASS
+    // ═════════════════════════════════════════════
+    function generateRandomData() {
+      var flightLetters = ['ST', 'LX', 'NX', 'OR', 'VP'];
+      var flightNum = flightLetters[Math.floor(Math.random() * flightLetters.length)] + '-' +
+        (2026 + Math.floor(Math.random() * 5)) + String.fromCharCode(65 + Math.floor(Math.random() * 26));
+      var seat = ('0' + Math.floor(Math.random() * 30)).slice(-2) + '-' +
+        String.fromCharCode(65 + Math.floor(Math.random() * 6));
+      var gate = 'LaunchPad-' + ('0' + Math.floor(Math.random() * 20)).slice(-2);
+      return { flight: flightNum, seat: seat, gate: gate };
+    }
+
+    function generateBarcodeSVG() {
+      var bars = '';
+      for (var i = 0; i < 80; i++) {
+        var w = Math.random() > 0.3 ? (1 + Math.floor(Math.random() * 3)) : 0;
+        if (w > 0) { bars += '<rect x="' + (i * 3.5) + '" y="0" width="' + w + '" height="40" fill="#fff"/>'; }
+      }
+      return bars;
+    }
+
+    function createBoardingPass() {
+      boardingOverlay = document.createElement('div');
+      boardingOverlay.className = 'boarding-overlay';
+      var rd = generateRandomData();
+      boardingOverlay.innerHTML =
+        '<div class="boarding-pass">' +
+        '<div class="bp-header">' +
+        '<div class="bp-title">BOARDING PASS</div>' +
+        '<div class="bp-subtitle">Starship Departure Authorization</div>' +
+        '</div>' +
+        '<div class="bp-grid" id="bp-grid">' +
+        '<div class="bp-field"><div class="bp-label">Passenger</div><div class="bp-value highlight">' + escHtml(reservationData.name) + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Flight No.</div><div class="bp-value">' + rd.flight + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Destination</div><div class="bp-value highlight">' + escHtml(reservationData.destination) + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Seat</div><div class="bp-value">' + rd.seat + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Gate</div><div class="bp-value">' + rd.gate + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Email</div><div class="bp-value" style="font-size:0.7rem">' + escHtml(reservationData.email) + '</div></div>' +
+        '</div>' +
+        '<div class="bp-barcode">' +
+        '<svg viewBox="0 0 280 40" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="40" fill="none"/>' + generateBarcodeSVG() + '</svg>' +
+        '<div class="bp-barcode-text">' + rd.flight + ' · ' + reservationData.destination.replace(/\s/g, '').toUpperCase() + '</div>' +
+        '</div>' +
+        '<button class="bp-complete-btn" id="bp-complete-btn">Complete & Board &rarr;</button>' +
+        '</div>';
+      document.body.appendChild(boardingOverlay);
+
+      boardingOverlay.addEventListener('click', function(e) {
+        if (e.target === boardingOverlay) { closeBoardingPass(); triggerConfetti(); }
+      });
+      boardingOverlay.querySelector('#bp-complete-btn').addEventListener('click', function() {
+        closeBoardingPass();
+        triggerConfetti();
+      });
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function openBoardingPass() {
+      if (!boardingOverlay) createBoardingPass();
+      // Refresh dynamic data
+      var rd = generateRandomData();
+      var grid = boardingOverlay.querySelector('#bp-grid');
+      if (grid) {
+        grid.innerHTML =
+          '<div class="bp-field"><div class="bp-label">Passenger</div><div class="bp-value highlight">' + escHtml(reservationData.name) + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Flight No.</div><div class="bp-value">' + rd.flight + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Destination</div><div class="bp-value highlight">' + escHtml(reservationData.destination) + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Seat</div><div class="bp-value">' + rd.seat + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Gate</div><div class="bp-value">' + rd.gate + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Email</div><div class="bp-value" style="font-size:0.7rem">' + escHtml(reservationData.email) + '</div></div>';
+      }
+      boardingOverlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+
+    function closeBoardingPass() {
+      if (boardingOverlay) boardingOverlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+
+    // ═════════════════════════════════════════════
+    // 6. CONFETTI
+    // ═════════════════════════════════════════════
+    function triggerConfetti() {
+      var colors = ['#7cb8ff','#4ade80','#fbbf24','#f472b6','#a78bfa','#fff','#38bdf8','#fb923c'];
+      for (var i = 0; i < 80; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.top = -(Math.random() * 20) + 'px';
+        piece.style.width = (4 + Math.random() * 8) + 'px';
+        piece.style.height = (6 + Math.random() * 10) + 'px';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '2px' : '50%';
+        piece.style.setProperty('--fall-duration', (1.5 + Math.random() * 2) + 's');
+        piece.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+        piece.style.animationDelay = Math.random() * 0.5 + 's';
+        document.body.appendChild(piece);
+        piece.addEventListener('animationend', function() { piece.remove(); });
+      }
+    }
+
+    // ═════════════════════════════════════════════
+    // 7. CART BADGE
+    // ═════════════════════════════════════════════
     function triggerCartPop() {
       cartCount++;
       cartCountEl = cartCountEl || document.getElementById('cart-count');
@@ -973,7 +1413,6 @@ console.log("React mounted successfully");
       }
     }
 
-    // Cart icon click also triggers pop
     function bindCartClick() {
       var cartTrigger = document.getElementById('cart-trigger');
       if (cartTrigger) {
@@ -985,18 +1424,15 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 5. MOBILE MENU
+    // 8. MOBILE MENU
     // ═════════════════════════════════════════════
     var mobileOverlay, mobilePanel, hamburgerBtn;
-    var menuOpen = false;
 
     function createMobileMenu() {
-      // Overlay
       mobileOverlay = document.createElement('div');
       mobileOverlay.className = 'mobile-menu-overlay';
       document.body.appendChild(mobileOverlay);
 
-      // Panel
       mobilePanel = document.createElement('div');
       mobilePanel.className = 'mobile-menu-panel';
       var links = ['Home', 'Voyages', 'Worlds', 'Innovation', 'Plan Launch'];
@@ -1007,19 +1443,21 @@ console.log("React mounted successfully");
       mobilePanel.innerHTML = linksHTML;
       document.body.appendChild(mobilePanel);
 
-      // Close on overlay click
       mobileOverlay.addEventListener('click', closeMobileMenu);
 
-      // Panel link clicks
       mobilePanel.querySelectorAll('a').forEach(function(link) {
         link.addEventListener('click', function(e) {
           e.preventDefault();
-          if (link.getAttribute('data-mobile-link') === 'claim-spot') {
+          var linkId = link.getAttribute('data-mobile-link');
+          if (linkId === 'claim-spot') {
             closeMobileMenu();
             setTimeout(openModal, 350);
           } else {
+            // Fix: use data-mobile-link to derive correct label
+            var label = linkId.replace(/-/g, ' ');
+            label = label.charAt(0).toUpperCase() + label.slice(1);
             closeMobileMenu();
-            showToast('Navigating to ' + link.textContent.trim() + '...');
+            showToast('Navigating to ' + label + '...');
           }
         });
       });
@@ -1049,24 +1487,20 @@ console.log("React mounted successfully");
 
     function bindMobileMenu() {
       var btn = document.getElementById('hamburger-btn');
-      if (btn) {
-        btn.addEventListener('click', toggleMobileMenu);
-      }
+      if (btn) btn.addEventListener('click', toggleMobileMenu);
     }
 
     // ═════════════════════════════════════════════
-    // 6. NUMBER COUNTER (IntersectionObserver)
+    // 9. NUMBER COUNTER
     // ═════════════════════════════════════════════
     function initCounters() {
       var counters = document.querySelectorAll('.stat-number[data-stat-value]');
       if (!counters.length) return;
-
       var animated = new Set();
 
       function animateCounter(el) {
         if (animated.has(el)) return;
         animated.add(el);
-
         var target = parseFloat(el.getAttribute('data-stat-value'));
         var suffix = el.getAttribute('data-stat-suffix') || '';
         var duration = 1800;
@@ -1076,7 +1510,6 @@ console.log("React mounted successfully");
         function step(timestamp) {
           if (!startTime) startTime = timestamp;
           var progress = Math.min((timestamp - startTime) / duration, 1);
-          // Ease-out cubic
           var eased = 1 - Math.pow(1 - progress, 3);
           var current = eased * target;
           el.textContent = current.toFixed(decimals) + suffix;
@@ -1086,15 +1519,12 @@ console.log("React mounted successfully");
             el.textContent = target.toFixed(decimals) + suffix;
           }
         }
-
         requestAnimationFrame(step);
       }
 
       var observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            animateCounter(entry.target);
-          }
+          if (entry.isIntersecting) animateCounter(entry.target);
         });
       }, { threshold: 0.5 });
 
@@ -1102,8 +1532,14 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 7. "View Liftoff" CTA – special action
+    // 10. CTA BINDINGS
     // ═════════════════════════════════════════════
+    function bindModalTriggers() {
+      document.querySelectorAll('[data-cta="claim-spot"], [data-cta="start-voyage"]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) { openModal(); });
+      });
+    }
+
     function bindViewLiftoff() {
       var btn = document.querySelector('[data-cta="view-liftoff"]');
       if (btn) {
@@ -1113,9 +1549,6 @@ console.log("React mounted successfully");
       }
     }
 
-    // ═════════════════════════════════════════════
-    // 8. NAV LINK CLICK FEEDBACK
-    // ═════════════════════════════════════════════
     function bindNavLinks() {
       document.querySelectorAll('[data-nav-link]').forEach(function(link) {
         link.addEventListener('click', function(e) {
@@ -1123,11 +1556,10 @@ console.log("React mounted successfully");
           showToast('Exploring ' + label + '...');
         });
       });
-      // Also bind mobile menu links (created dynamically)
     }
 
     // ═════════════════════════════════════════════
-    // INIT EVERYTHING
+    // 11. INIT
     // ═════════════════════════════════════════════
     function initAll() {
       initRipples();
@@ -1139,7 +1571,6 @@ console.log("React mounted successfully");
       initCounters();
     }
 
-    // Retry a few times to catch React render
     var retries = 0;
     function tryInit() {
       var ctaEls = document.querySelectorAll('[data-cta]');
@@ -1152,7 +1583,7 @@ console.log("React mounted successfully");
     }
     tryInit();
 
-  }); // end onReady
+  });
 })();
 </script>
 </body>
