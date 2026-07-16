@@ -7,22 +7,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<script src="https://cdn.tailwindcss.com"></script>
 <script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: {
-          heading: ["'Instrument Serif'", "serif"],
-          body: ["'Barlow'", "sans-serif"],
-        },
-        borderRadius: {
-          DEFAULT: "9999px",
+  window.tailwind = {
+    config: {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ["'Instrument Serif'", "serif"],
+            body: ["'Barlow'", "sans-serif"],
+          },
+          borderRadius: {
+            DEFAULT: "9999px",
+          },
         },
       },
     },
   };
 </script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; background: #000; }
@@ -82,16 +84,295 @@
     mask-composite: exclude;
     pointer-events: none;
   }
+
+  /* ═══════════════════════════════════════════════
+     INTERACTIVE FEATURES CSS
+     ═══════════════════════════════════════════════ */
+
+  /* ── Nav Link Hover Underline ── */
+  .nav-link {
+    position: relative;
+    transition: color 0.25s;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: #fff;
+    transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2), left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+  }
+  .nav-link:hover { color: #fff; }
+  .nav-link:hover::after { width: 60%; left: 20%; }
+
+  /* ── Ripple Effect ── */
+  [data-cta] {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    transform: scale(0);
+    animation: ripple-anim 0.7s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* ── CTA Press Feedback ── */
+  [data-cta]:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+  }
+
+  /* ── Modal Overlay ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-panel {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    max-width: 440px;
+    width: 90%;
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+  }
+  .modal-overlay.active .modal-panel {
+    transform: translateY(0) scale(1);
+  }
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.15); }
+  .modal-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-input:focus { border-color: rgba(255,255,255,0.5); }
+  .modal-input::placeholder { color: rgba(255,255,255,0.4); }
+  .modal-submit {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 9999px;
+    border: none;
+    background: #fff;
+    color: #000;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .modal-submit:hover { background: #e5e5e5; }
+  .modal-submit:active { transform: scale(0.97); }
+
+  /* ── Toast Notification ── */
+  .toast-container {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+  .toast {
+    pointer-events: auto;
+    padding: 0.75rem 1.25rem;
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: toast-in 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2), toast-out 0.3s ease 2.5s forwards;
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .toast-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateX(80px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes toast-out {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(80px); }
+  }
+
+  /* ── Cart Badge ── */
+  .cart-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    background: #fff;
+    color: #000;
+    font-family: 'Barlow', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 5px;
+    transition: transform 0.15s ease;
+  }
+  .cart-badge.pop {
+    animation: badge-pop 0.45s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+  }
+  @keyframes badge-pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+  }
+
+  /* ── Mobile Menu ── */
+  .hamburger {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    z-index: 250;
+    transition: background 0.2s;
+  }
+  .hamburger:hover { background: rgba(255,255,255,0.1); }
+  .hamburger span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: #fff;
+    border-radius: 1px;
+    transition: transform 0.3s ease, opacity 0.2s;
+  }
+  .hamburger.active span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .mobile-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 180;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .mobile-menu-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mobile-menu-panel {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    height: 100vh;
+    z-index: 190;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-left: 1px solid rgba(255,255,255,0.1);
+    padding: 5rem 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: right 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+  }
+  .mobile-menu-panel.active { right: 0; }
+  .mobile-menu-panel a {
+    color: rgba(255,255,255,0.8);
+    font-family: 'Barlow', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  .mobile-menu-panel a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+  @media (max-width: 1023px) {
+    .hamburger { display: flex; }
+  }
+
+  /* ── Number Counter ── */
+  .stat-number { font-variant-numeric: tabular-nums; }
+
+  /* ── Body scroll lock ── */
+  body.no-scroll { overflow: hidden; }
 </style>
 </head>
 <body>
 <div id="root"></div>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
-<script>window.Motion = window.FramerMotion;</script>
 
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback, createElement: h, Fragment } = React;
@@ -324,18 +605,34 @@ function Navbar() {
       ...["Home", "Voyages", "Worlds", "Innovation", "Plan Launch"].map(label =>
         h("span", {
           key: label,
-          className: "px-3 py-2 text-sm font-medium text-white/90 font-body cursor-pointer",
+          "data-nav-link": label.toLowerCase().replace(/\s+/g, '-'),
+          className: "nav-link px-3 py-2 text-sm font-medium text-white/90 font-body cursor-pointer",
         }, label)
       ),
       h("button", {
-        className: "bg-white text-black rounded-full px-4 py-2 text-sm font-medium font-body whitespace-nowrap flex items-center gap-1.5 ml-1",
+        "data-cta": "claim-spot",
+        className: "ripple bg-white text-black rounded-full px-4 py-2 text-sm font-medium font-body whitespace-nowrap flex items-center gap-1.5 ml-1",
       },
         "Claim a Spot",
         h(ArrowUpRightIcon, { className: "h-4 w-4" })
       )
     ),
-    // Right: spacer
-    h("div", { className: "w-12 h-12 invisible" })
+    // Right: spacer + cart badge + hamburger
+    h("div", { className: "flex items-center gap-3" },
+      h("div", { className: "w-12 h-12 liquid-glass rounded-full items-center justify-center hidden lg:flex relative cursor-pointer", id: "cart-trigger" },
+        h("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round", className: "text-white" },
+          h("circle", { cx: "9", cy: "21", r: "1" }),
+          h("circle", { cx: "20", cy: "21", r: "1" }),
+          h("path", { d: "M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" })
+        ),
+        h("span", { id: "cart-count", className: "cart-badge", style: { position: "absolute", top: "-4px", right: "-4px" } }, "0")
+      ),
+      h("button", { className: "hamburger lg:hidden", id: "hamburger-btn" },
+        h("span", null),
+        h("span", null),
+        h("span", null)
+      )
+    )
   );
 }
 
@@ -390,13 +687,15 @@ function Hero() {
           className: "flex items-center gap-6 mt-6",
         },
           h("button", {
-            className: "liquid-glass-strong rounded-full px-5 py-2.5 text-sm font-medium text-white flex items-center gap-1.5 font-body",
+            "data-cta": "start-voyage",
+            className: "ripple liquid-glass-strong rounded-full px-5 py-2.5 text-sm font-medium text-white flex items-center gap-1.5 font-body",
           },
             "Start Your Voyage",
             h(ArrowUpRightIcon, { className: "h-5 w-5" })
           ),
           h("button", {
-            className: "text-white text-sm font-body flex items-center gap-1.5",
+            "data-cta": "view-liftoff",
+            className: "ripple text-white text-sm font-body flex items-center gap-1.5",
           },
             h(PlayIcon, { className: "h-4 w-4" }),
             "View Liftoff"
@@ -412,12 +711,12 @@ function Hero() {
         },
           h("div", { className: "liquid-glass p-5 w-[220px] rounded-[1.25rem]" },
             h(ClockIcon, { className: "text-white" }),
-            h("div", { className: "font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2" }, "34.5 Min"),
+            h("div", { className: "stat-number font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2", "data-stat-value": "34.5", "data-stat-suffix": " Min" }, "34.5 Min"),
             h("p", { className: "text-xs text-white font-body font-light mt-2" }, "Average Videos Watch Time")
           ),
           h("div", { className: "liquid-glass p-5 w-[220px] rounded-[1.25rem]" },
             h(GlobeIcon, { className: "text-white" }),
-            h("div", { className: "font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2" }, "2.8B+"),
+            h("div", { className: "stat-number font-heading italic text-white text-4xl tracking-[-1px] leading-none mt-2", "data-stat-value": "2.8", "data-stat-suffix": "B+" }, "2.8B+"),
             h("p", { className: "text-xs text-white font-body font-light mt-2" }, "Users Across the Globe")
           )
         ),
@@ -540,6 +839,319 @@ function App() {
 // ─── Mount ─────────────────────────────────────────────────────
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(h(App));
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     INTERACTIVE ENGINE (Vanilla JS)
+     ═══════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  // ── Wait for React to render ──
+  function onReady(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn);
+    } else {
+      // Small delay to let React finish
+      setTimeout(fn, 50);
+    }
+  }
+
+  onReady(function() {
+
+    // ═════════════════════════════════════════════
+    // 1. RIPPLE EFFECT
+    // ═════════════════════════════════════════════
+    function initRipples() {
+      document.querySelectorAll('[data-cta]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          var ripple = document.createElement('span');
+          ripple.className = 'ripple-effect';
+          var rect = btn.getBoundingClientRect();
+          var size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = size + 'px';
+          ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+          ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+          btn.appendChild(ripple);
+          ripple.addEventListener('animationend', function() { ripple.remove(); });
+        });
+      });
+    }
+
+    // ═════════════════════════════════════════════
+    // 2. MODAL SYSTEM
+    // ═════════════════════════════════════════════
+    var modalOverlay, modalPanel;
+
+    function createModal() {
+      modalOverlay = document.createElement('div');
+      modalOverlay.className = 'modal-overlay';
+      modalOverlay.innerHTML = '<div class="modal-panel" style="position:relative">' +
+        '<button class="modal-close">&times;</button>' +
+        '<h3 style="font-family:\'Instrument Serif\',serif;font-style:italic;color:#fff;font-size:1.75rem;margin:0 0 0.5rem;letter-spacing:-1px">Launch Your Voyage</h3>' +
+        '<p style="color:rgba(255,255,255,0.6);font-family:\'Barlow\',sans-serif;font-size:0.8rem;margin:0 0 1.5rem;line-height:1.4">Reserve your seat aboard the next-generation spacecraft. A crew specialist will contact you within 24 hours.</p>' +
+        '<div style="display:flex;flex-direction:column;gap:0.75rem">' +
+        '<input class="modal-input" type="text" placeholder="Full Name" />' +
+        '<input class="modal-input" type="email" placeholder="Email Address" />' +
+        '<select class="modal-input" style="appearance:none;cursor:pointer"><option value="">Select Destination</option><option>Mars Orbit</option><option>Lunar Base</option><option>Deep Space</option></select>' +
+        '<button class="modal-submit" id="modal-submit-btn">Confirm Reservation</button>' +
+        '</div></div>';
+      document.body.appendChild(modalOverlay);
+      modalPanel = modalOverlay.querySelector('.modal-panel');
+
+      // Close handlers
+      modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) closeModal();
+      });
+      modalOverlay.querySelector('.modal-close').addEventListener('click', closeModal);
+      modalOverlay.querySelector('#modal-submit-btn').addEventListener('click', function() {
+        closeModal();
+        showToast('Reservation confirmed! Welcome aboard.');
+        triggerCartPop();
+      });
+    }
+
+    function openModal() {
+      if (!modalOverlay) createModal();
+      modalOverlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+
+    // Bind CTAs to modal
+    function bindModalTriggers() {
+      document.querySelectorAll('[data-cta="claim-spot"], [data-cta="start-voyage"]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          openModal();
+        });
+      });
+    }
+
+    // ═════════════════════════════════════════════
+    // 3. TOAST NOTIFICATION SYSTEM
+    // ═════════════════════════════════════════════
+    var toastContainer;
+
+    function createToastContainer() {
+      toastContainer = document.createElement('div');
+      toastContainer.className = 'toast-container';
+      document.body.appendChild(toastContainer);
+    }
+
+    function showToast(message) {
+      if (!toastContainer) createToastContainer();
+      var toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = '<span class="toast-dot"></span>' + message;
+      toastContainer.appendChild(toast);
+      toast.addEventListener('animationend', function(e) {
+        if (e.animationName === 'toast-out') toast.remove();
+      });
+    }
+
+    // ═════════════════════════════════════════════
+    // 4. CART BADGE
+    // ═════════════════════════════════════════════
+    var cartCount = 0;
+    var cartCountEl;
+
+    function triggerCartPop() {
+      cartCount++;
+      cartCountEl = cartCountEl || document.getElementById('cart-count');
+      if (cartCountEl) {
+        cartCountEl.textContent = cartCount;
+        cartCountEl.classList.remove('pop');
+        void cartCountEl.offsetWidth;
+        cartCountEl.classList.add('pop');
+      }
+    }
+
+    // Cart icon click also triggers pop
+    function bindCartClick() {
+      var cartTrigger = document.getElementById('cart-trigger');
+      if (cartTrigger) {
+        cartTrigger.addEventListener('click', function() {
+          triggerCartPop();
+          showToast('Item added to launch manifest');
+        });
+      }
+    }
+
+    // ═════════════════════════════════════════════
+    // 5. MOBILE MENU
+    // ═════════════════════════════════════════════
+    var mobileOverlay, mobilePanel, hamburgerBtn;
+    var menuOpen = false;
+
+    function createMobileMenu() {
+      // Overlay
+      mobileOverlay = document.createElement('div');
+      mobileOverlay.className = 'mobile-menu-overlay';
+      document.body.appendChild(mobileOverlay);
+
+      // Panel
+      mobilePanel = document.createElement('div');
+      mobilePanel.className = 'mobile-menu-panel';
+      var links = ['Home', 'Voyages', 'Worlds', 'Innovation', 'Plan Launch'];
+      var linksHTML = links.map(function(l) {
+        return '<a href="#" data-mobile-link="' + l.toLowerCase().replace(/\s+/g, '-') + '">' + l + '</a>';
+      }).join('');
+      linksHTML += '<a href="#" data-mobile-link="claim-spot" style="background:#fff;color:#000;text-align:center;margin-top:auto;font-weight:600">Claim a Spot</a>';
+      mobilePanel.innerHTML = linksHTML;
+      document.body.appendChild(mobilePanel);
+
+      // Close on overlay click
+      mobileOverlay.addEventListener('click', closeMobileMenu);
+
+      // Panel link clicks
+      mobilePanel.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (link.getAttribute('data-mobile-link') === 'claim-spot') {
+            closeMobileMenu();
+            setTimeout(openModal, 350);
+          } else {
+            closeMobileMenu();
+            showToast('Navigating to ' + link.textContent.trim() + '...');
+          }
+        });
+      });
+    }
+
+    function toggleMobileMenu() {
+      if (!mobileOverlay) createMobileMenu();
+      menuOpen = !menuOpen;
+      hamburgerBtn = hamburgerBtn || document.getElementById('hamburger-btn');
+      if (menuOpen) {
+        mobileOverlay.classList.add('active');
+        mobilePanel.classList.add('active');
+        if (hamburgerBtn) hamburgerBtn.classList.add('active');
+        document.body.classList.add('no-scroll');
+      } else {
+        closeMobileMenu();
+      }
+    }
+
+    function closeMobileMenu() {
+      menuOpen = false;
+      if (mobileOverlay) mobileOverlay.classList.remove('active');
+      if (mobilePanel) mobilePanel.classList.remove('active');
+      if (hamburgerBtn) hamburgerBtn.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+
+    function bindMobileMenu() {
+      var btn = document.getElementById('hamburger-btn');
+      if (btn) {
+        btn.addEventListener('click', toggleMobileMenu);
+      }
+    }
+
+    // ═════════════════════════════════════════════
+    // 6. NUMBER COUNTER (IntersectionObserver)
+    // ═════════════════════════════════════════════
+    function initCounters() {
+      var counters = document.querySelectorAll('.stat-number[data-stat-value]');
+      if (!counters.length) return;
+
+      var animated = new Set();
+
+      function animateCounter(el) {
+        if (animated.has(el)) return;
+        animated.add(el);
+
+        var target = parseFloat(el.getAttribute('data-stat-value'));
+        var suffix = el.getAttribute('data-stat-suffix') || '';
+        var duration = 1800;
+        var startTime = null;
+        var decimals = (target % 1 !== 0) ? 1 : 0;
+
+        function step(timestamp) {
+          if (!startTime) startTime = timestamp;
+          var progress = Math.min((timestamp - startTime) / duration, 1);
+          // Ease-out cubic
+          var eased = 1 - Math.pow(1 - progress, 3);
+          var current = eased * target;
+          el.textContent = current.toFixed(decimals) + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            el.textContent = target.toFixed(decimals) + suffix;
+          }
+        }
+
+        requestAnimationFrame(step);
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      counters.forEach(function(c) { observer.observe(c); });
+    }
+
+    // ═════════════════════════════════════════════
+    // 7. "View Liftoff" CTA – special action
+    // ═════════════════════════════════════════════
+    function bindViewLiftoff() {
+      var btn = document.querySelector('[data-cta="view-liftoff"]');
+      if (btn) {
+        btn.addEventListener('click', function(e) {
+          showToast('Live feed loading... Stand by for liftoff.');
+        });
+      }
+    }
+
+    // ═════════════════════════════════════════════
+    // 8. NAV LINK CLICK FEEDBACK
+    // ═════════════════════════════════════════════
+    function bindNavLinks() {
+      document.querySelectorAll('[data-nav-link]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          var label = link.textContent.trim();
+          showToast('Exploring ' + label + '...');
+        });
+      });
+      // Also bind mobile menu links (created dynamically)
+    }
+
+    // ═════════════════════════════════════════════
+    // INIT EVERYTHING
+    // ═════════════════════════════════════════════
+    function initAll() {
+      initRipples();
+      bindModalTriggers();
+      bindCartClick();
+      bindMobileMenu();
+      bindViewLiftoff();
+      bindNavLinks();
+      initCounters();
+    }
+
+    // Retry a few times to catch React render
+    var retries = 0;
+    function tryInit() {
+      var ctaEls = document.querySelectorAll('[data-cta]');
+      if (ctaEls.length > 0 || retries > 10) {
+        initAll();
+      } else {
+        retries++;
+        setTimeout(tryInit, 200);
+      }
+    }
+    tryInit();
+
+  }); // end onReady
+})();
 </script>
 </body>
 </html>
