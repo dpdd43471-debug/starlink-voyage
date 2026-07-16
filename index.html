@@ -585,6 +585,76 @@
     justify-content: center;
     padding: 1rem;
   }
+
+  /* ── Cinematic Video Overlay ── */
+  .cinematic-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 250;
+    background: rgba(0,0,0,0.95);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .cinematic-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .cinematic-video-container {
+    position: relative;
+    width: 90%;
+    max-width: 960px;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow:
+      0 0 40px rgba(100,150,255,0.12),
+      0 0 80px rgba(100,100,255,0.06),
+      inset 0 0 0 1px rgba(255,255,255,0.06);
+    border: 1px solid rgba(100,150,255,0.2);
+    transform: scale(0.96);
+    transition: transform 0.4s cubic-bezier(0.25,0.8,0.25,1.2);
+  }
+  .cinematic-overlay.active .cinematic-video-container {
+    transform: scale(1);
+  }
+  .cinematic-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .cinematic-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255,255,255,0.8);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-transform: uppercase;
+  }
+  .cinematic-close-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.5);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+  }
 </style>
 </head>
 <body>
@@ -1095,6 +1165,7 @@ console.log("React mounted successfully");
     var toastContainer;
     var paymentOverlay, paymentPanel;
     var boardingOverlay, boardingPass;
+    var cinematicOverlay, cinematicVideo;
 
     // ═════════════════════════════════════════════
     // PRICING DATA
@@ -1633,7 +1704,62 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 10. CTA BINDINGS
+    // 10. CINEMATIC VIDEO OVERLAY
+    // ═════════════════════════════════════════════
+    function createCinematicOverlay() {
+      cinematicOverlay = document.createElement('div');
+      cinematicOverlay.className = 'cinematic-overlay';
+
+      cinematicOverlay.innerHTML =
+        '<div class="cinematic-video-container">' +
+        '<button class="cinematic-close-btn" id="cinematic-close-btn">[ TERMINATE TRANSMISSION ]</button>' +
+        // ═══ USER-REPLACEABLE VIDEO SOURCE ═══
+        // Replace the src below with your local video filename (e.g. "1000042769.mp4")
+        '<video id="cinematic-video" src="https://assets.mixkit.co/videos/preview/mixkit-rocket-launching-into-space-space-shuttle-takeoff-41541-large.mp4" preload="auto" playsinline></video>' +
+        '</div>';
+
+      document.body.appendChild(cinematicOverlay);
+      cinematicVideo = cinematicOverlay.querySelector('#cinematic-video');
+
+      // Close button
+      cinematicOverlay.querySelector('#cinematic-close-btn').addEventListener('click', function() {
+        closeCinematicOverlay();
+      });
+
+      // Click outside video to close
+      cinematicOverlay.addEventListener('click', function(e) {
+        if (e.target === cinematicOverlay) closeCinematicOverlay();
+      });
+
+      // ESC key to close
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && cinematicOverlay.classList.contains('active')) {
+          closeCinematicOverlay();
+        }
+      });
+    }
+
+    function openCinematicOverlay() {
+      if (!cinematicOverlay) createCinematicOverlay();
+      cinematicOverlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+      if (cinematicVideo) {
+        cinematicVideo.currentTime = 0;
+        cinematicVideo.play();
+      }
+    }
+
+    function closeCinematicOverlay() {
+      if (cinematicVideo) {
+        cinematicVideo.pause();
+        cinematicVideo.currentTime = 0;
+      }
+      if (cinematicOverlay) cinematicOverlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+
+    // ═════════════════════════════════════════════
+    // 11. CTA BINDINGS
     // ═════════════════════════════════════════════
     function bindModalTriggers() {
       document.querySelectorAll('[data-cta="claim-spot"], [data-cta="start-voyage"]').forEach(function(btn) {
@@ -1645,7 +1771,7 @@ console.log("React mounted successfully");
       var btn = document.querySelector('[data-cta="view-liftoff"]');
       if (btn) {
         btn.addEventListener('click', function(e) {
-          showToast('Live feed loading... Stand by for liftoff.');
+          openCinematicOverlay();
         });
       }
     }
@@ -1660,7 +1786,7 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 11. MOBILE URL DETECTION (QR Code scan direct entry)
+    // 12. MOBILE URL DETECTION (QR Code scan direct entry)
     // ═════════════════════════════════════════════
     function checkMobileBoardingEntry() {
       var params = new URLSearchParams(window.location.search);
@@ -1730,7 +1856,7 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 12. INIT
+    // 13. INIT
     // ═════════════════════════════════════════════
     function initAll() {
       // Check for mobile direct boarding entry before anything else
