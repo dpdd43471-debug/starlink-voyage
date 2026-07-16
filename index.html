@@ -515,6 +515,76 @@
   .input-error { border-color: rgba(255,80,80,0.6) !important; }
   .error-text { color: #ff6b6b; font-size: 0.7rem; font-family: 'Barlow',sans-serif; margin-top: 0.25rem; display: none; }
   .error-text.visible { display: block; }
+
+  /* ── Syncing Breathing Light ── */
+  @keyframes breathe {
+    0%, 100% { opacity: 0.4; text-shadow: 0 0 6px rgba(0,200,255,0.2); }
+    50% { opacity: 1; text-shadow: 0 0 18px rgba(0,200,255,0.7), 0 0 40px rgba(0,180,255,0.3); }
+  }
+  .sync-text {
+    animation: breathe 2s ease-in-out infinite;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    color: #7cb8ff;
+    text-align: center;
+    margin: 0.5rem 0 0;
+  }
+
+  /* ── Sync Progress Bar ── */
+  .sync-progress-container {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0.5rem 0 0.75rem;
+  }
+  .sync-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7cb8ff, #4ade80, #a78bfa, #7cb8ff);
+    background-size: 300% 100%;
+    border-radius: 2px;
+    width: 0%;
+    animation: progressShimmer 2s linear infinite;
+  }
+  @keyframes progressShimmer {
+    0% { background-position: 300% 0; }
+    100% { background-position: -300% 0; }
+  }
+
+  /* ── Skip Sync Button ── */
+  .sync-skip-btn {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(124,184,255,0.25);
+    background: rgba(124,184,255,0.05);
+    color: #7cb8ff;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+  }
+  .sync-skip-btn:hover {
+    background: rgba(124,184,255,0.14);
+    border-color: rgba(124,184,255,0.5);
+    box-shadow: 0 0 16px rgba(124,184,255,0.15);
+  }
+
+  /* ── Mobile Boarding Pass Wrapper ── */
+  .mobile-boarding-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
 </style>
 </head>
 <body>
@@ -1015,6 +1085,8 @@ console.log("React mounted successfully");
     // GLOBAL STATE
     // ═════════════════════════════════════════════
     var reservationData = { name: '', email: '', destination: '' };
+    var boardingData = { flight: '', seat: '', gate: '' };
+    var pollingTimer = null;
     var cartCount = 0;
     var cartCountEl;
     var menuOpen = false;
@@ -1158,6 +1230,9 @@ console.log("React mounted successfully");
       // Store reservation data
       reservationData = { name: name, email: email, destination: destination };
 
+      // Pre-generate boarding data for QR code
+      boardingData = generateRandomData();
+
       // Close reservation modal & open payment
       closeModal();
       setTimeout(function() { openPaymentModal(); }, 350);
@@ -1183,17 +1258,18 @@ console.log("React mounted successfully");
         '<button class="payment-tab active" data-payment="wechat">WeChat Pay</button>' +
         '<button class="payment-tab" data-payment="alipay">Alipay</button>' +
         '</div>' +
-        '<div class="qr-container">' +
+        '<div class="qr-container" id="qr-container">' +
         '<div class="qr-scan-line"></div>' +
-        '<svg class="qr-code-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">' +
-        '<rect width="160" height="160" fill="#fff"/>' +
-        generateQRPattern() +
-        '</svg>' +
+        '<img id="qr-code-img" src="" alt="Payment QR Code" style="width:100%;height:100%;object-fit:contain;display:block" />' +
         '</div>' +
-        '<button class="modal-submit" id="simulate-pay-btn" style="margin-top:1rem">[Simulate Scan] Pay Now</button>' +
+        '<p class="sync-text" id="sync-text">📡 正在同步星际支付网络... (Syncing...)</p>' +
+        '<div class="sync-progress-container">' +
+        '<div class="sync-progress-fill" id="sync-progress-fill"></div>' +
+        '</div>' +
+        '<button class="sync-skip-btn" id="sync-skip-btn">【已在手机完成支付】立即登机</button>' +
         '<div class="processing-overlay" id="processing-overlay">' +
         '<div class="processing-spinner"></div>' +
-        '<p style="color:#fff;font-family:\'Barlow\',sans-serif;font-size:0.8rem;margin-top:0.75rem">Processing Payment...</p>' +
+        '<p style="color:#fff;font-family:\'Barlow\',sans-serif;font-size:0.8rem;margin-top:0.75rem">Payment Verified — Issuing Boarding Pass...</p>' +
         '</div>' +
         '</div>';
       document.body.appendChild(paymentOverlay);
@@ -1201,13 +1277,14 @@ console.log("React mounted successfully");
 
       // Close
       paymentOverlay.querySelector('#payment-close-btn').addEventListener('click', function() {
+        clearPaymentTimer();
         closePaymentModal();
       });
       paymentOverlay.addEventListener('click', function(e) {
-        if (e.target === paymentOverlay) closePaymentModal();
+        if (e.target === paymentOverlay) { clearPaymentTimer(); closePaymentModal(); }
       });
 
-      // Payment tabs
+      // Payment tabs (visual only)
       paymentOverlay.querySelectorAll('.payment-tab').forEach(function(tab) {
         tab.addEventListener('click', function() {
           paymentOverlay.querySelectorAll('.payment-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -1215,65 +1292,76 @@ console.log("React mounted successfully");
         });
       });
 
-      // Simulate payment
-      paymentOverlay.querySelector('#simulate-pay-btn').addEventListener('click', function() {
-        simulatePayment();
+      // Skip button — manual trigger
+      paymentOverlay.querySelector('#sync-skip-btn').addEventListener('click', function() {
+        clearPaymentTimer();
+        triggerPaymentSuccess();
       });
     }
 
-    function generateQRPattern() {
-      var cells = '';
-      var patterns = [
-        [0,0,0,0,0,0,0,1,1,0,1,0,0,0,1,0,0,1,1,1,0,0,0,0,0,0,0],
-        [0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,0],
-        [0,1,0,0,0,1,0,0,1,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0],
-        [0,1,0,0,0,1,0,1,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,0,0,1,0],
-        [0,1,0,0,0,1,0,0,0,1,1,0,0,1,1,0,1,0,1,1,0,1,0,0,0,1,0],
-        [0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,0],
-        [0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0],
-        [1,1,1,1,1,1,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,1,1,1,1,1],
-        [1,1,0,0,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,0,0,1,1],
-        [1,0,1,1,0,1,1,0,0,1,0,0,1,0,0,1,0,1,0,0,1,1,0,1,1,0,1],
-        [0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,1,0],
-        [1,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,1],
-        [0,0,1,0,1,0,1,0,0,1,0,0,1,0,0,1,0,0,0,1,0,1,0,1,0,0,1],
-        [1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1],
-        [0,1,0,1,0,1,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,1,0,1,0],
-        [1,0,0,1,1,0,0,0,1,0,1,0,1,0,0,0,1,0,1,0,0,1,1,0,0,0,1],
-        [1,1,0,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,1,0,1,1],
-        [1,0,1,0,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1],
-        [0,1,0,0,1,1,0,0,1,0,1,0,0,1,0,1,1,0,0,1,0,0,1,0,1,1,0],
-        [1,0,1,0,1,0,1,1,0,0,0,1,0,1,1,0,0,0,0,0,1,1,0,0,1,0,1],
-        [1,1,1,1,1,1,1,0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,1,0,1,1],
-        [0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,0],
-        [0,1,1,1,1,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,1,0],
-        [0,1,0,0,0,1,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,0,0,1],
-        [0,1,0,0,0,1,0,0,0,1,0,0,0,1,1,0,0,1,0,0,1,0,0,1,0,1,0],
-        [0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,0,1,0],
-        [0,1,1,1,1,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,0,0],
-        [0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,0,1,1,0,1,0]
-      ];
-      for (var y = 0; y < patterns.length; y++) {
-        for (var x = 0; x < patterns[y].length; x++) {
-          if (patterns[y][x] === 1) {
-            var cx = 16 + x * 4.8;
-            var cy = 16 + y * 4.8;
-            cells += '<rect x="' + cx + '" y="' + cy + '" width="3.5" height="3.5" rx="0.5" fill="#111"/>';
-          }
-        }
-      }
-      return cells;
-    }
+    // ═════════════════════════════════════════════
+    // 5. BOARDING PASS
 
     function openPaymentModal() {
       if (!paymentOverlay) createPaymentModal();
+
       var dest = reservationData.destination;
       var price = pricing[dest] || 0;
       document.getElementById('payment-destination-label').textContent = 'Destination: ' + dest + ' | Passenger: ' + reservationData.name;
       document.getElementById('payment-amount').textContent = price.toLocaleString();
+
+      // Build QR URL with boarding data
+      var qrUrl = window.location.origin + window.location.pathname +
+        '?boarding=true' +
+        '&name=' + encodeURIComponent(reservationData.name) +
+        '&dest=' + encodeURIComponent(reservationData.destination) +
+        '&flight=' + encodeURIComponent(boardingData.flight) +
+        '&seat=' + encodeURIComponent(boardingData.seat) +
+        '&gate=' + encodeURIComponent(boardingData.gate);
+
+      // Set real QR code image
+      var qrImg = document.getElementById('qr-code-img');
+      if (qrImg) {
+        qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrUrl);
+      }
+
+      // Reset UI state
       document.getElementById('processing-overlay').classList.remove('active');
+      var syncText = document.getElementById('sync-text');
+      var progressFill = document.getElementById('sync-progress-fill');
+      var skipBtn = document.getElementById('sync-skip-btn');
+      if (syncText) syncText.style.display = '';
+      if (progressFill) { progressFill.style.width = '0%'; progressFill.parentElement.style.display = ''; }
+      if (skipBtn) skipBtn.style.display = '';
+
       paymentOverlay.classList.add('active');
       document.body.classList.add('no-scroll');
+
+      // Start 8-second polling timer with progress bar animation
+      var totalMs = 8000;
+      var startTime = Date.now();
+      var progressEl = document.getElementById('sync-progress-fill');
+
+      function tick() {
+        if (!pollingTimer) return; // cancelled
+        var elapsed = Date.now() - startTime;
+        var pct = Math.min((elapsed / totalMs) * 100, 100);
+        if (progressEl) progressEl.style.width = pct + '%';
+        if (elapsed >= totalMs) {
+          pollingTimer = null;
+          triggerPaymentSuccess();
+        } else {
+          pollingTimer = requestAnimationFrame(tick);
+        }
+      }
+      pollingTimer = requestAnimationFrame(tick);
+    }
+
+    function clearPaymentTimer() {
+      if (pollingTimer) {
+        cancelAnimationFrame(pollingTimer);
+        pollingTimer = null;
+      }
     }
 
     function closePaymentModal() {
@@ -1281,16 +1369,24 @@ console.log("React mounted successfully");
       document.body.classList.remove('no-scroll');
     }
 
-    function simulatePayment() {
+    function triggerPaymentSuccess() {
       var proc = document.getElementById('processing-overlay');
-      proc.classList.add('active');
+      var syncText = document.getElementById('sync-text');
+      var progressFill = document.getElementById('sync-progress-fill');
+      var skipBtn = document.getElementById('sync-skip-btn');
+      // Hide syncing UI, show processing overlay
+      if (syncText) syncText.style.display = 'none';
+      if (progressFill) progressFill.parentElement.style.display = 'none';
+      if (skipBtn) skipBtn.style.display = 'none';
+      if (proc) proc.classList.add('active');
+
       setTimeout(function() {
-        proc.classList.remove('active');
+        if (proc) proc.classList.remove('active');
         closePaymentModal();
         showToast('Payment Successful! Ticket Issued.');
         triggerCartPop();
         setTimeout(function() { openBoardingPass(); }, 500);
-      }, 1500);
+      }, 1200);
     }
 
     // ═════════════════════════════════════════════
@@ -1356,17 +1452,22 @@ console.log("React mounted successfully");
 
     function openBoardingPass() {
       if (!boardingOverlay) createBoardingPass();
-      // Refresh dynamic data
-      var rd = generateRandomData();
+      // Use shared boardingData (generated at reservation time)
+      var bd = boardingData;
       var grid = boardingOverlay.querySelector('#bp-grid');
       if (grid) {
         grid.innerHTML =
           '<div class="bp-field"><div class="bp-label">Passenger</div><div class="bp-value highlight">' + escHtml(reservationData.name) + '</div></div>' +
-          '<div class="bp-field"><div class="bp-label">Flight No.</div><div class="bp-value">' + rd.flight + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Flight No.</div><div class="bp-value">' + bd.flight + '</div></div>' +
           '<div class="bp-field"><div class="bp-label">Destination</div><div class="bp-value highlight">' + escHtml(reservationData.destination) + '</div></div>' +
-          '<div class="bp-field"><div class="bp-label">Seat</div><div class="bp-value">' + rd.seat + '</div></div>' +
-          '<div class="bp-field"><div class="bp-label">Gate</div><div class="bp-value">' + rd.gate + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Seat</div><div class="bp-value">' + bd.seat + '</div></div>' +
+          '<div class="bp-field"><div class="bp-label">Gate</div><div class="bp-value">' + bd.gate + '</div></div>' +
           '<div class="bp-field"><div class="bp-label">Email</div><div class="bp-value" style="font-size:0.7rem">' + escHtml(reservationData.email) + '</div></div>';
+      }
+      // Update barcode text
+      var barcodeText = boardingOverlay.querySelector('.bp-barcode-text');
+      if (barcodeText) {
+        barcodeText.textContent = bd.flight + ' · ' + reservationData.destination.replace(/\s/g, '').toUpperCase();
       }
       boardingOverlay.classList.add('active');
       document.body.classList.add('no-scroll');
@@ -1559,9 +1660,90 @@ console.log("React mounted successfully");
     }
 
     // ═════════════════════════════════════════════
-    // 11. INIT
+    // 11. MOBILE URL DETECTION (QR Code scan direct entry)
+    // ═════════════════════════════════════════════
+    function getUrlParam(name) {
+      var url = window.location.search.substring(1);
+      var params = url.split('&');
+      for (var i = 0; i < params.length; i++) {
+        var p = params[i].split('=');
+        if (p[0] === name) return decodeURIComponent(p[1] || '');
+      }
+      return null;
+    }
+
+    function checkMobileBoardingEntry() {
+      var isBoarding = getUrlParam('boarding');
+      if (isBoarding !== 'true') {
+        return; // normal desktop/mobile browsing
+      }
+
+      // Get all boarding data from URL params
+      var name = getUrlParam('name') || 'Guest';
+      var dest = getUrlParam('dest') || 'Space Station';
+      var flight = getUrlParam('flight') || generateRandomData().flight;
+      var seat = getUrlParam('seat') || '01-A';
+      var gate = getUrlParam('gate') || 'LaunchPad-01';
+
+      // Store in global for consistent rendering
+      reservationData = { name: name, email: '', destination: dest };
+      boardingData = { flight: flight, seat: seat, gate: gate };
+
+      // Hide all existing content — root app, navbar, everything
+      var rootEl = document.getElementById('root');
+      if (rootEl) rootEl.style.display = 'none';
+
+      // Hide all overlays just in case
+      var nav = document.querySelector('nav');
+      if (nav) nav.style.display = 'none';
+
+      // Create mobile full-screen boarding pass wrapper
+      var wrapper = document.createElement('div');
+      wrapper.className = 'mobile-boarding-wrapper';
+
+      // Build same beautiful boarding pass HTML
+      wrapper.innerHTML =
+        '<div class="boarding-pass">' +
+        '<div class="bp-header">' +
+        '<div class="bp-title">BOARDING PASS</div>' +
+        '<div class="bp-subtitle">Starship Departure Authorization</div>' +
+        '</div>' +
+        '<div class="bp-grid">' +
+        '<div class="bp-field"><div class="bp-label">Passenger</div><div class="bp-value highlight">' + escHtml(name) + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Flight No.</div><div class="bp-value">' + escHtml(flight) + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Destination</div><div class="bp-value highlight">' + escHtml(dest) + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Seat</div><div class="bp-value">' + escHtml(seat) + '</div></div>' +
+        '<div class="bp-field"><div class="bp-label">Gate</div><div class="bp-value">' + escHtml(gate) + '</div></div>' +
+        '</div>' +
+        '<div class="bp-barcode">' +
+        '<svg viewBox="0 0 280 40" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="40" fill="none"/>' + generateBarcodeSVG() + '</svg>' +
+        '<div class="bp-barcode-text">' + escHtml(flight) + ' · ' + dest.replace(/\s/g, '').toUpperCase() + '</div>' +
+        '</div>' +
+        '<button class="bp-complete-btn" id="mobile-bp-complete-btn">Complete & Board &rarr;</button>' +
+        '</div>';
+
+      document.body.appendChild(wrapper);
+      document.body.classList.add('no-scroll');
+
+      // Complete button handler
+      wrapper.querySelector('#mobile-bp-complete-btn').addEventListener('click', function() {
+        // Remove wrapper, show root again, trigger confetti
+        wrapper.remove();
+        if (rootEl) rootEl.style.display = '';
+        document.body.classList.remove('no-scroll');
+        triggerConfetti();
+      });
+
+      // Click outside (body under wrapper) doesn't close since wrapper covers everything
+    }
+
+    // ═════════════════════════════════════════════
+    // 12. INIT
     // ═════════════════════════════════════════════
     function initAll() {
+      // Check for mobile direct boarding entry before anything else
+      checkMobileBoardingEntry();
+
       initRipples();
       bindModalTriggers();
       bindCartClick();
