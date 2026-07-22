@@ -1,7 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useGameStore } from './store/useGameStore'
 import { useScriptEngine } from './hooks/useScriptEngine'
 import { useMetaListeners } from './hooks/useMetaListeners'
+import { useAudioManager } from './hooks/useAudioManager'
+import { initAudio, getAudioContextState } from './utils/audioSynthesizer'
 import CharacterStage from './components/CharacterStage'
 import DialogueBox from './components/DialogueBox'
 import ChoiceOverlay from './components/ChoiceOverlay'
@@ -18,8 +20,18 @@ export default function App() {
   const openTerminal = useGameStore((s) => s.openTerminal)
   const unlockedEnding = useGameStore((s) => s.persistentMemory.unlockedEnding)
 
+  const [audioReady, setAudioReady] = useState(false)
+
   useMetaListeners()
+  useAudioManager()
   const { scene } = useScriptEngine()
+
+  const handleFirstInteraction = () => {
+    if (!audioReady) {
+      const ok = initAudio()
+      setAudioReady(ok || getAudioContextState() === 'running')
+    }
+  }
 
   useEffect(() => {
     const titles = {
@@ -51,7 +63,11 @@ export default function App() {
   const bgm = scene?.bgm || ''
 
   return (
-    <div className="min-h-screen bg-crt-bg flex flex-col relative overflow-hidden">
+    <div
+      className="min-h-screen bg-crt-bg flex flex-col relative overflow-hidden"
+      onClick={handleFirstInteraction}
+      onKeyDown={handleFirstInteraction}
+    >
       <div className="crt-scanlines absolute inset-0 pointer-events-none opacity-10" />
 
       <header className="border-b-2 border-crt-border bg-[#050508] px-4 py-2 flex justify-between items-center relative z-10">
@@ -61,6 +77,12 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-4 text-xs text-crt-gray">
+          <span
+            className={audioReady ? 'text-crt-green' : 'text-crt-gray/60'}
+            title={audioReady ? 'Audio active' : 'Click to enable audio'}
+          >
+            {audioReady ? '♪ Audio' : '♪ Click to enable'}
+          </span>
           <span>Tab: {metaFlags.tabSwitchCount}</span>
           {isHijacked && (
             <span className="text-crt-danger animate-pulse">LOCKED</span>
