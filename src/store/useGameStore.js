@@ -19,6 +19,7 @@ export const useGameStore = create(
       stageEffects: {
         screenShake: false,
         screenFlash: false,
+        screenRedFlash: false,
         vignetteDarkness: 0,
       },
 
@@ -32,6 +33,10 @@ export const useGameStore = create(
         visitedScenes: [],
         choiceHistory: [],
         refreshCount: 0,
+        playthroughCount: 1,
+        hasCompletedXiaMoRoute: false,
+        betrayedXiaMo: false,
+        isHijacked: false,
       },
 
       modals: {
@@ -95,12 +100,56 @@ export const useGameStore = create(
         }, 300)
       },
 
+      redFlashReset: () => {
+        set({ stageEffects: { ...get().stageEffects, screenRedFlash: true } })
+        setTimeout(() => {
+          set({ stageEffects: { ...get().stageEffects, screenRedFlash: false } })
+        }, 800)
+      },
+
       setVignette: (darkness) => {
         set({ stageEffects: { ...get().stageEffects, vignetteDarkness: darkness } })
       },
 
       enableYandereLock: () => {
-        set({ metaFlags: { ...get().metaFlags, yandereLock: true } })
+        set({
+          metaFlags: { ...get().metaFlags, yandereLock: true },
+          persistentMemory: { ...get().persistentMemory, isHijacked: true },
+        })
+      },
+
+      setHijacked: (value) => {
+        set({ persistentMemory: { ...get().persistentMemory, isHijacked: value } })
+      },
+
+      setBetrayedXiaMo: (value) => {
+        set({ persistentMemory: { ...get().persistentMemory, betrayedXiaMo: value } })
+      },
+
+      completeXiaMoRoute: () => {
+        set({
+          persistentMemory: {
+            ...get().persistentMemory,
+            hasCompletedXiaMoRoute: true,
+            playthroughCount: get().persistentMemory.playthroughCount + 1,
+          },
+        })
+      },
+
+      startNewPlaythrough: () => {
+        set({
+          sceneId: 'scene_p1_convenience_store',
+          dialogueIndex: 0,
+          character: { id: null, expression: 'neutral', position: 'center', glitchFilter: 'none' },
+          stageEffects: { screenShake: false, screenFlash: false, screenRedFlash: false, vignetteDarkness: 0 },
+          metaFlags: { tabSwitchCount: get().metaFlags.tabSwitchCount, yandereLock: false, devToolsOpened: get().metaFlags.devToolsOpened },
+          persistentMemory: {
+            ...get().persistentMemory,
+            playthroughCount: get().persistentMemory.playthroughCount + 1,
+            visitedScenes: [],
+            choiceHistory: [],
+          },
+        })
       },
 
       showAlert: (title, content) => {
@@ -152,6 +201,9 @@ export const useGameStore = create(
             case 'FLASH':
               get().flashScreen()
               break
+            case 'RED_FLASH_RESET':
+              get().redFlashReset()
+              break
             case 'SHOW_ALERT':
               get().showAlert(action.title || '系统提示', action.content || '')
               break
@@ -161,6 +213,18 @@ export const useGameStore = create(
             case 'VIGNETTE':
               get().setVignette(action.darkness || 0.5)
               break
+            case 'SET_CHARACTER':
+              get().setCharacter(action.character || null)
+              break
+            case 'BETRAY_XIAMO':
+              get().setBetrayedXiaMo(true)
+              break
+            case 'COMPLETE_XIAMO':
+              get().completeXiaMoRoute()
+              break
+            case 'NEW_PLAYTHROUGH':
+              get().startNewPlaythrough()
+              break
             default:
               break
           }
@@ -169,14 +233,29 @@ export const useGameStore = create(
     }),
     {
       name: 'recycle-bin-confession-storage',
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
+        const base = persistedState || {}
         return {
-          ...persistedState,
-          sceneId: 'scene_p1_convenience_store',
+          ...base,
+          sceneId: base.sceneId || 'scene_p1_convenience_store',
           dialogueIndex: 0,
           character: { id: null, expression: 'neutral', position: 'center', glitchFilter: 'none' },
-          persistentMemory: { visitedScenes: [], choiceHistory: [], refreshCount: 0 },
+          stageEffects: { screenShake: false, screenFlash: false, screenRedFlash: false, vignetteDarkness: 0 },
+          metaFlags: {
+            tabSwitchCount: base.metaFlags?.tabSwitchCount || 0,
+            yandereLock: false,
+            devToolsOpened: base.metaFlags?.devToolsOpened || false,
+          },
+          persistentMemory: {
+            visitedScenes: [],
+            choiceHistory: [],
+            refreshCount: base.persistentMemory?.refreshCount || 0,
+            playthroughCount: base.persistentMemory?.playthroughCount || 1,
+            hasCompletedXiaMoRoute: base.persistentMemory?.hasCompletedXiaMoRoute || false,
+            betrayedXiaMo: base.persistentMemory?.betrayedXiaMo || false,
+            isHijacked: false,
+          },
         }
       },
     }

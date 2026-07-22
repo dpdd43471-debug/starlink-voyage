@@ -370,7 +370,416 @@
           "speaker": null,
           "text": "雨还在下。但有些东西，已经悄悄改变了。",
           "character": null,
+          "actions": [],
+          "choices": [
+            { "text": "继续剧情 (Act 3)", "targetSceneId": "scene_p1_rain_care", "conditionKey": null }
+          ]
+        }
+      ]
+    },
+    "scene_p1_rain_care": {
+      "id": "scene_p1_rain_care",
+      "bgImage": "rain_window_afternoon.png",
+      "bgm": "rain_soft.mp3",
+      "dialogues": [
+        {
+          "id": "p1_04_01",
+          "speaker": null,
+          "text": "暴雨下了整整一个下午。窗玻璃被雨水糊成一片，外面的世界像融化了一样。",
+          "character": null,
           "actions": []
+        },
+        {
+          "id": "p1_04_02",
+          "speaker": null,
+          "text": "你打了几个喷嚏，夏茉已经站在你旁边，手里拿着一片药和一杯温水。",
+          "character": {
+            "id": "xiamo",
+            "expression": "gentle",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_04_03",
+          "speaker": "夏茉",
+          "text": "张嘴。",
+          "character": {
+            "id": "xiamo",
+            "expression": "gentle",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_04_04",
+          "speaker": "夏茉",
+          "text": "别动——我帮你把药送到嘴边。手别伸过来，你会碰到的。",
+          "character": {
+            "id": "xiamo",
+            "expression": "overly_sweet",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "GLITCH", "filter": "shake" }
+          ]
+        },
+        {
+          "id": "p1_04_05",
+          "speaker": "我",
+          "text": "……我自己能吃。",
+          "character": {
+            "id": "me",
+            "expression": "uneasy",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_04_06",
+          "speaker": "夏茉",
+          "text": "不行。你会弄洒的。乖——张嘴。",
+          "character": {
+            "id": "xiamo",
+            "expression": "overly_sweet",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "GLITCH", "filter": "rgb-split" }
+          ]
+        },
+        {
+          "id": "p1_04_07",
+          "speaker": null,
+          "text": "药片碰到舌尖的一瞬间，她的指尖擦过你的嘴唇。温度，比体温低一点。",
+          "character": null,
+          "actions": [
+            { "type": "SHAKE" }
+          ]
+        },
+        {
+          "id": "p1_04_08",
+          "speaker": "夏茉",
+          "text": "……对吧？很甜。这药本来就是甜的。",
+          "character": {
+            "id": "xiamo",
+            "expression": "smiling",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_04_09",
+          "speaker": "我",
+          "text": "（……为什么她今天的眼神，像是在看一件东西，而不是一个人？）",
+          "character": {
+            "id": "me",
+            "expression": "uneasy",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_04_10",
+          "speaker": null,
+          "text": "她没有立刻收回手。雨声在窗外变得很响。",
+          "character": null,
+          "actions": [],
+          "choices": [
+            { "text": "去天台透气 (Act 4)", "targetSceneId": "scene_p1_rooftop_confession", "conditionKey": null }
+          ]
+        }
+      ]
+    },
+    "scene_p1_rooftop_confession": {
+      "id": "scene_p1_rooftop_confession",
+      "bgImage": "rooftop_sunset.png",
+      "bgm": "confession_piano.mp3",
+      "dialogues": [
+        {
+          "id": "p1_05_01",
+          "speaker": null,
+          "text": "天台。夕阳把整个城市染成橘红色，风很大，吹得校服猎猎作响。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_05_02",
+          "speaker": null,
+          "text": "夏茉站在栏杆边，背对着你。她的头发被风吹乱，她没有去理。",
+          "character": {
+            "id": "xiamo",
+            "expression": "back",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_05_03",
+          "speaker": "夏茉",
+          "text": "你来了。",
+          "character": {
+            "id": "xiamo",
+            "expression": "back",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_05_04",
+          "speaker": "夏茉",
+          "text": "我……有件事，从入学第一天就想告诉你了。",
+          "character": {
+            "id": "xiamo",
+            "expression": "shy",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_05_05",
+          "speaker": "夏茉",
+          "text": "我喜欢你。不是那种朋友的喜欢。",
+          "character": {
+            "id": "xiamo",
+            "expression": "serious",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "SHAKE" }
+          ]
+        },
+        {
+          "id": "p1_05_06",
+          "speaker": "夏茉",
+          "text": "……你不用现在回答。但是，请记住我今天说的每一个字。",
+          "character": {
+            "id": "xiamo",
+            "expression": "smiling",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_05_07",
+          "speaker": null,
+          "text": "夕阳沉了下去。屏幕开始变得奇怪——",
+          "character": null,
+          "actions": [
+            { "type": "GLITCH", "filter": "rgb-split" }
+          ]
+        },
+        {
+          "id": "p1_05_08",
+          "speaker": null,
+          "text": "—— STAFF ——",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_05_09",
+          "speaker": null,
+          "text": "剧本：??? / 程序：??? / 立绘：??? / 音乐：???",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_05_10",
+          "speaker": null,
+          "text": "特别鸣谢：你。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_05_11",
+          "speaker": null,
+          "text": "—— 感谢游玩 ——",
+          "character": null,
+          "actions": [
+            { "type": "RED_FLASH_RESET" },
+            { "type": "COMPLETE_XIAMO" }
+          ],
+          "choices": [
+            { "text": "【开始二周目】", "targetSceneId": "scene_p2_yandere_break", "conditionKey": "hasCompletedXiaMoRoute" }
+          ]
+        }
+      ]
+    },
+    "scene_p2_yandere_break": {
+      "id": "scene_p2_yandere_break",
+      "bgImage": "classroom_distorted.png",
+      "bgm": "glitch_drone.mp3",
+      "dialogues": [
+        {
+          "id": "p2_01_01",
+          "speaker": null,
+          "text": "—— 二周目 ——",
+          "character": null,
+          "actions": [
+            { "type": "NEW_PLAYTHROUGH" }
+          ]
+        },
+        {
+          "id": "p2_01_02",
+          "speaker": null,
+          "text": "同样的便利店，同样的雨。但夏茉的笑容里，多了一点你上次没见过的东西。",
+          "character": {
+            "id": "xiamo",
+            "expression": "knowing_smile",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p2_01_03",
+          "speaker": "夏茉",
+          "text": "你又来了。我就知道你会回来的。",
+          "character": {
+            "id": "xiamo",
+            "expression": "knowing_smile",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p2_01_04",
+          "speaker": null,
+          "text": "剧情走得很快。你又来到了图书室。凛还在那个角落。",
+          "character": {
+            "id": "rin",
+            "expression": "neutral",
+            "position": "left"
+          },
+          "actions": []
+        },
+        {
+          "id": "p2_01_05",
+          "speaker": "夏茉",
+          "text": "（忽然出现在你身后）你在看谁？",
+          "character": {
+            "id": "xiamo",
+            "expression": "cold",
+            "position": "right"
+          },
+          "actions": [
+            { "type": "SHAKE" }
+          ]
+        },
+        {
+          "id": "p2_01_06",
+          "speaker": null,
+          "text": "选项浮现。你想走向凛——",
+          "character": null,
+          "actions": [],
+          "choices": [
+            { "text": "走向凛", "targetSceneId": "scene_p2_yandere_lock", "conditionKey": null },
+            { "text": "留在夏茉身边", "targetSceneId": "scene_p2_stay_xiamo", "conditionKey": null }
+          ]
+        }
+      ]
+    },
+    "scene_p2_yandere_lock": {
+      "id": "scene_p2_yandere_lock",
+      "bgImage": "classroom_red.png",
+      "bgm": "heartbeat_distorted.mp3",
+      "dialogues": [
+        {
+          "id": "p2_02_01",
+          "speaker": null,
+          "text": "你迈出第一步的瞬间——屏幕猛地一震。",
+          "character": null,
+          "actions": [
+            { "type": "SHAKE" },
+            { "type": "GLITCH", "filter": "invert" }
+          ]
+        },
+        {
+          "id": "p2_02_02",
+          "speaker": "夏茉",
+          "text": "不许去。",
+          "character": {
+            "id": "xiamo_yandere",
+            "expression": "yandere",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "SET_CHARACTER", "character": { "id": "xiamo_yandere", "expression": "yandere", "position": "center" } },
+            { "type": "SHAKE" },
+            { "type": "YANDERE_LOCK" }
+          ]
+        },
+        {
+          "id": "p2_02_03",
+          "speaker": "夏茉",
+          "text": "你答应过我的。你说过会记住那天的每一个字。",
+          "character": {
+            "id": "xiamo_yandere",
+            "expression": "yandere",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p2_02_04",
+          "speaker": "夏茉",
+          "text": "为什么……你要走向别人？",
+          "character": {
+            "id": "xiamo_yandere",
+            "expression": "yandere",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "GLITCH", "filter": "invert" },
+            { "type": "SHAKE" }
+          ]
+        },
+        {
+          "id": "p2_02_05",
+          "speaker": null,
+          "text": "屏幕上的选项消失了。取而代之的，是两个一模一样的红色按钮。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p2_02_06",
+          "speaker": "夏茉",
+          "text": "没关系。我已经把你的选项修好了。选哪个都一样——我们永远在一起。",
+          "character": {
+            "id": "xiamo_yandere",
+            "expression": "smiling",
+            "position": "center"
+          },
+          "actions": [],
+          "choices": [
+            { "text": "永远留在夏茉身边", "targetSceneId": "scene_p2_stay_xiamo", "conditionKey": null }
+          ]
+        }
+      ]
+    },
+    "scene_p2_stay_xiamo": {
+      "id": "scene_p2_stay_xiamo",
+      "bgImage": "white_room.png",
+      "bgm": "silence.mp3",
+      "dialogues": [
+        {
+          "id": "p2_03_01",
+          "speaker": "夏茉",
+          "text": "很好。这才是我的——",
+          "character": {
+            "id": "xiamo_yandere",
+            "expression": "smiling",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p2_03_02",
+          "speaker": null,
+          "text": "—— Bad End: 永远留在夏茉身边 ——",
+          "character": null,
+          "actions": [
+            { "type": "GLITCH", "filter": "invert" }
+          ]
         }
       ]
     }
