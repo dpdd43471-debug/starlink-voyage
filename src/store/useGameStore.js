@@ -161,6 +161,17 @@ export const useGameStore = create(
         })
       },
 
+      incrementPlaythrough: () => {
+        set({
+          persistentMemory: {
+            ...get().persistentMemory,
+            playthroughCount: get().persistentMemory.playthroughCount + 1,
+            visitedScenes: [],
+            choiceHistory: [],
+          },
+        })
+      },
+
       startNewPlaythrough: () => {
         set({
           sceneId: 'scene_p1_convenience_store',
@@ -248,7 +259,7 @@ export const useGameStore = create(
               get().completeXiaMoRoute()
               break
             case 'NEW_PLAYTHROUGH':
-              get().startNewPlaythrough()
+              get().incrementPlaythrough()
               break
             default:
               break

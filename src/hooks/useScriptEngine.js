@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useGameStore } from '../store/useGameStore'
 import scriptData from '../data/script.json'
-import { playTypingSound } from '../utils/audioSynthesizer'
 
 const TYPE_SPEED = 40
 
@@ -42,7 +41,6 @@ export function useScriptEngine() {
     timerRef.current = setInterval(() => {
       if (index < text.length) {
         setCurrentText(text.slice(0, index + 1))
-        playTypingSound()
         index++
       } else {
         clearInterval(timerRef.current)

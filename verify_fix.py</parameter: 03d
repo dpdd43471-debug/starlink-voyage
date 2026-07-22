@@ -1,0 +1,104 @@
+from playwright.sync_api import sync_playwright
+import os
+
+SCREENSHOT_DIR = '/workspace/playwright_fix_check'
+os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+
+console_msgs = []
+
+def dismiss_alerts(page):
+    for _ in range(5):
+        for selector_list = page.query_selector_all("button:has-text('确定'), button:has-text('OK'), button:has-text('关闭')")
+        if not selector_list:
+            break
+        try:
+            selector_list[0].click(timeout=500)
+            page.wait_for_timeout(200)
+            continue
+        except:
+            pass
+        break
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
+    context = browser.new_context()
+    page = context.new_page()
+
+    page.on("console", lambda msg: console_msgs.append(f"[{msg.type}] {msg.text}") if msg.type in ("error", "warning") else None)
+    page.on("pageerror", lambda err: console_msgs.append(f"[pageerror] {err}"))
+
+    page.goto("http://localhost:5174/", wait_until="networkidle", timeout=15000)
+    page.wait_for_timeout(1000)
+    page.evaluate("localStorage.clear()")
+    page.reload(wait_until="networkidle")
+    page.wait_for_timeout(1000)
+    page.screenshot(path=f"{SCREENSHOT_DIR}/01_start.png", full_page=True)
+    print("OK 01 start")
+
+    scene_p2_reached = False
+    yandere_reached = False
+    scene_p2_lock_reached = False
+
+    for step in range(120):
+        dismiss_alerts(page)
+
+        scene_id = page.evaluate("() => {
+            const el = document.querySelector('.text-crt-gray\\/60, .text-xs');
+            return document.body.innerText.slice(0, 200);
+        })
+        if "scene_p2" in scene_id or "二周目" in scene_id or "不许去" in scene_id:
+            if not scene_p2_reached:
+                scene_p2_reached = True
+                page.screenshot(path=f"{SCREENSHOT_DIR}/03_scene_p2.png", full_page=True)
+                print(f"OK scene_p2 reached at step {step}")
+
+        choice_btns = page.query_selector_all(".option-btn")
+        if choice_btns and len(choice_btns) > 0:
+            page.screenshot(path=f"{SCREENSHOT_DIR}/choices_step_{step:03d}.png", full_page=True)
+            choice_text = choice_btns[0].inner_text()
+            print(f"Step {step}: choice = {choice_text[:40]}")
+            try:
+                choice_btns[0].click(timeout=2000)
+            except:
+                pass
+            page.wait_for_timeout(800)
+            continue
+
+        text_div = page.query_selector("div.min-h-\\[60px\\]")
+        if text_div:
+            try:
+                text_div.click(timeout=2000)
+                page.wait_for_timeout(100)
+                dismiss_alerts(page)
+                text_div.click(timeout=2000)
+                page.wait_for_timeout(200)
+            except:
+                pass
+
+            body_text = page.evaluate("() => document.body.innerText")
+            if "不许去" in body_text and not yandere_reached:
+                yandere_reached = True
+                page.screenshot(path=f"{SCREENSHOT_DIR}/04_yandere.png", full_page=True)
+                print(f"OK yandere reached at step {step}")
+
+            if "永远留在" in body_text and yandere_reached:
+                scene_p2_lock_reached = True
+                page.screenshot(path=f"{SCREENSHOT_DIR}/05_yandere_lock.png", full_page=True)
+                print(f"OK yandere lock reached at step {step}")
+
+    page.screenshot(path=f"{SCREENSHOT_DIR}/99_final.png", full_page=True)
+
+    print("\n=== SUMMARY ===")
+    print(f"scene_p2_reached: {scene_p2_reached}")
+    print(f"yandere_reached: {yandere_reached}")
+    print(f"yandere_lock_reached: {scene_p2_lock_reached}")
+
+    print("\n=== CONSOLE ===")
+    if console_msgs:
+        for m in console_msgs[:10]:
+            print(m)
+    else:
+        print("(no errors/warnings)")
+
+    browser.close()
+print("Done.")
