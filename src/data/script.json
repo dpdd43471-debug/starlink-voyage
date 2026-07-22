@@ -1,0 +1,378 @@
+{
+  "scenes": {
+    "scene_p1_convenience_store": {
+      "id": "scene_p1_convenience_store",
+      "bgImage": "convenience_store_evening.png",
+      "bgm": "daily_chill.mp3",
+      "dialogues": [
+        {
+          "id": "p1_01_01",
+          "speaker": null,
+          "text": "放学后的便利店，玻璃门上结着一层薄薄的水雾。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_01_02",
+          "speaker": "夏茉",
+          "text": "喂——你愣在那儿干嘛？帮我拿一下冰柜里的电解质饮料，蓝罐的那个！",
+          "character": {
+            "id": "xiamo",
+            "expression": "cheerful",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "SHAKE" }
+          ]
+        },
+        {
+          "id": "p1_01_03",
+          "speaker": "夏茉",
+          "text": "贴——脸——啦。就最上面那一罐，踮脚够得着吗？要不要姐姐抱你起来？",
+          "character": {
+            "id": "xiamo",
+            "expression": "teasing",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_01_04",
+          "speaker": "我",
+          "text": "……明明你自己够得着，非要把这种活儿推给我。",
+          "character": {
+            "id": "me",
+            "expression": "resigned",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_01_05",
+          "speaker": "夏茉",
+          "text": "哈！买到啦——一口气灌半罐。呼，今天体育课跑了一千五，腿都软了。",
+          "character": {
+            "id": "xiamo",
+            "expression": "refreshed",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_01_06",
+          "speaker": "夏茉",
+          "text": "对了对了，顺手再帮我拿一根冰棒。草莓的。不是草莓的也行，反正我都吐槽数学老师。",
+          "character": {
+            "id": "xiamo",
+            "expression": "casual",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_01_07",
+          "speaker": "夏茉",
+          "text": "你听说了吗？老张今天又把卷子印错了，第三页印成了第二页的背面，全班当场破防。",
+          "character": {
+            "id": "xiamo",
+            "expression": "laughing",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "GLITCH", "filter": "shake" }
+          ]
+        },
+        {
+          "id": "p1_01_08",
+          "speaker": "我",
+          "text": "……所以我刚才那一堆破题算白做了。",
+          "character": {
+            "id": "me",
+            "expression": "dead_inside",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_01_09",
+          "speaker": "夏茉",
+          "text": "没事没事，反正你本来也不会做嘛。走啦走啦，下节是自修，陪我去图书室占个位置——靠窗的角。",
+          "character": {
+            "id": "xiamo",
+            "expression": "cheerful",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_01_10",
+          "speaker": null,
+          "text": "冰棒化了一半，滴在指间，黏黏的。夏茉一边舔一边说今天云有点怪。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_01_11",
+          "speaker": null,
+          "text": "天色开始发灰，像被洗掉了一层颜色。",
+          "character": null,
+          "actions": [],
+          "choices": [
+            { "text": "去图书室", "targetSceneId": "scene_p1_library_rin", "conditionKey": null }
+          ]
+        }
+      ]
+    },
+    "scene_p1_library_rin": {
+      "id": "scene_p1_library_rin",
+      "bgImage": "library_overcast.png",
+      "bgm": "library_rain_drizzle.mp3",
+      "dialogues": [
+        {
+          "id": "p1_02_01",
+          "speaker": null,
+          "text": "图书室很空。阴天的光线从窗边斜斜地切进来，落在角落那张桌子上。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_02_02",
+          "speaker": null,
+          "text": "角落里坐着一个戴耳机的女生，正低头翻一本厚得像砖的书。",
+          "character": {
+            "id": "rin",
+            "expression": "neutral",
+            "position": "left"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_02_03",
+          "speaker": "夏茉",
+          "text": "啊，有人占了我们老位置。算了算了，坐这边——",
+          "character": {
+            "id": "xiamo",
+            "expression": "casual",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_02_04",
+          "speaker": "凛",
+          "text": "你挡光了。",
+          "character": {
+            "id": "rin",
+            "expression": "cold",
+            "position": "left"
+          },
+          "actions": [
+            { "type": "SHAKE" }
+          ]
+        },
+        {
+          "id": "p1_02_05",
+          "speaker": "我",
+          "text": "……抱歉。但今天阴天，哪来的光。",
+          "character": {
+            "id": "me",
+            "expression": "confused",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_02_06",
+          "speaker": "凛",
+          "text": "我说挡了就挡了。",
+          "character": {
+            "id": "rin",
+            "expression": "cold",
+            "position": "left"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_02_07",
+          "speaker": "夏茉",
+          "text": "（小声）这人谁啊，坐我们位置还凶我们。要不要我直接开怼？",
+          "character": {
+            "id": "xiamo",
+            "expression": "annoyed",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_02_08",
+          "speaker": null,
+          "text": "耳机里漏出一丝钢琴声。她没再抬头，翻了一页，纸很薄，声音很轻。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_02_09",
+          "speaker": "我",
+          "text": "（算了，换个地方坐吧。这阴沉天的气氛已经够压抑了。）",
+          "character": {
+            "id": "me",
+            "expression": "resigned",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_02_10",
+          "speaker": null,
+          "text": "夏茉撇了撇嘴，拎着书包换到了另一张桌子。窗外的云压得更低了。",
+          "character": null,
+          "actions": [],
+          "choices": [
+            { "text": "去旧机房", "targetSceneId": "scene_p1_server_room", "conditionKey": null }
+          ]
+        }
+      ]
+    },
+    "scene_p1_server_room": {
+      "id": "scene_p1_server_room",
+      "bgImage": "server_room_dusk.png",
+      "bgm": "server_fan_drone.mp3",
+      "dialogues": [
+        {
+          "id": "p1_03_01",
+          "speaker": null,
+          "text": "放学后的旧机房，风扇声像低频嗡鸣，一直钻进耳朵里。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_03_02",
+          "speaker": null,
+          "text": "角落那台老服务器又亮着红灯，不知道在跑什么。",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_03_03",
+          "speaker": "凛",
+          "text": "……散热太烂了。",
+          "character": {
+            "id": "rin",
+            "expression": "neutral",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_03_04",
+          "speaker": "我",
+          "text": "啊？你什么时候跟过来的。",
+          "character": {
+            "id": "me",
+            "expression": "surprised",
+            "position": "right"
+          },
+          "actions": [
+            { "type": "SHAKE" }
+          ]
+        },
+        {
+          "id": "p1_03_05",
+          "speaker": "凛",
+          "text": "一直都在。你看窗外。",
+          "character": {
+            "id": "rin",
+            "expression": "neutral",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_03_06",
+          "speaker": null,
+          "text": "窗外的雨不知道什么时候下起来的，玻璃上全是水痕，看不清外面。",
+          "character": null,
+          "actions": [
+            { "type": "GLITCH", "filter": "rgb-split" }
+          ]
+        },
+        {
+          "id": "p1_03_07",
+          "speaker": "凛",
+          "text": "已经下了七十二小时了。你没发现吗？",
+          "character": {
+            "id": "rin",
+            "expression": "cold",
+            "position": "center"
+          },
+          "actions": [
+            { "type": "GLITCH", "filter": "rgb-split" }
+          ]
+        },
+        {
+          "id": "p1_03_08",
+          "speaker": "我",
+          "text": "……什么七十二小时？今天才第一天下雨吧？",
+          "character": {
+            "id": "me",
+            "expression": "confused",
+            "position": "right"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_03_09",
+          "speaker": "凛",
+          "text": "是吗。也许是我记错了。",
+          "character": {
+            "id": "rin",
+            "expression": "neutral",
+            "position": "center"
+          },
+          "actions": []
+        },
+        {
+          "id": "p1_03_10",
+          "speaker": null,
+          "text": "她转过头，耳机里又传来那首钢琴曲。风扇声突然变得更刺耳了一瞬。",
+          "character": null,
+          "actions": [
+            { "type": "GLITCH", "filter": "invert" },
+            { "type": "SHOW_ALERT", "title": "系统提示", "content": "检测到时间轴异常。请玩家忽略此提示，继续日常剧情。" }
+          ]
+        },
+        {
+          "id": "p1_03_11",
+          "speaker": null,
+          "text": "窗外，雨还在下。风扇还在转。时间，似乎停在了这一刻。",
+          "character": null,
+          "actions": [],
+          "choices": [
+            { "text": "【结束一周目 Act 1 & 2】", "targetSceneId": "scene_p1_end", "conditionKey": null }
+          ]
+        }
+      ]
+    },
+    "scene_p1_end": {
+      "id": "scene_p1_end",
+      "bgImage": "black.png",
+      "bgm": "silence.mp3",
+      "dialogues": [
+        {
+          "id": "p1_end_01",
+          "speaker": null,
+          "text": "—— Act 1 & Act 2 结束 ——",
+          "character": null,
+          "actions": []
+        },
+        {
+          "id": "p1_end_02",
+          "speaker": null,
+          "text": "雨还在下。但有些东西，已经悄悄改变了。",
+          "character": null,
+          "actions": []
+        }
+      ]
+    }
+  }
+}

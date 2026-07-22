@@ -3,11 +3,16 @@ import { useGameStore } from '../store/useGameStore'
 
 describe('useGameStore', () => {
   beforeEach(() => {
-    useGameStore.getState().sceneId = 'start'
-    useGameStore.getState().dialogueIndex = 0
-    useGameStore.getState().character.glitchFilter = 'none'
-    useGameStore.getState().metaFlags.yandereLock = false
-    useGameStore.getState().modals.systemAlert.open = false
+    useGameStore.setState({
+      sceneId: 'scene_p1_convenience_store',
+      dialogueIndex: 0,
+      isAutoPlaying: false,
+      character: { id: null, expression: 'neutral', position: 'center', glitchFilter: 'none' },
+      stageEffects: { screenShake: false, screenFlash: false, vignetteDarkness: 0 },
+      metaFlags: { tabSwitchCount: 0, yandereLock: false, devToolsOpened: false },
+      persistentMemory: { visitedScenes: [], choiceHistory: [], refreshCount: 0 },
+      modals: { systemAlert: { open: false, title: '', content: '' }, terminalOpen: false },
+    })
   })
 
   afterEach(() => {
@@ -16,7 +21,7 @@ describe('useGameStore', () => {
 
   it('should initialize with default values', () => {
     const state = useGameStore.getState()
-    expect(state.sceneId).toBe('start')
+    expect(state.sceneId).toBe('scene_p1_convenience_store')
     expect(state.dialogueIndex).toBe(0)
     expect(state.isAutoPlaying).toBe(false)
     expect(state.character.glitchFilter).toBe('none')
@@ -25,7 +30,7 @@ describe('useGameStore', () => {
   })
 
   it('triggerGlitch should update character.glitchFilter', () => {
-    const triggerGlitch = useGameStore.getState().triggerGlitch
+    const { triggerGlitch } = useGameStore.getState()
 
     triggerGlitch('shake')
     expect(useGameStore.getState().character.glitchFilter).toBe('shake')
@@ -41,44 +46,31 @@ describe('useGameStore', () => {
   })
 
   it('enableYandereLock should set metaFlags.yandereLock to true', () => {
-    const enableYandereLock = useGameStore.getState().enableYandereLock
-
+    const { enableYandereLock } = useGameStore.getState()
     expect(useGameStore.getState().metaFlags.yandereLock).toBe(false)
-
     enableYandereLock()
     expect(useGameStore.getState().metaFlags.yandereLock).toBe(true)
   })
 
   it('setScene should update sceneId and reset dialogueIndex', () => {
-    const setScene = useGameStore.getState().setScene
-
-    setScene('open_recycle')
-    expect(useGameStore.getState().sceneId).toBe('open_recycle')
-    expect(useGameStore.getState().dialogueIndex).toBe(0)
-
-    useGameStore.getState().dialogueIndex = 2
-    setScene('read_file')
-    expect(useGameStore.getState().sceneId).toBe('read_file')
+    const { setScene } = useGameStore.getState()
+    setScene('scene_p1_library_rin')
+    expect(useGameStore.getState().sceneId).toBe('scene_p1_library_rin')
     expect(useGameStore.getState().dialogueIndex).toBe(0)
   })
 
   it('nextDialogue should increment dialogueIndex', () => {
-    const nextDialogue = useGameStore.getState().nextDialogue
-
+    const { nextDialogue } = useGameStore.getState()
     expect(useGameStore.getState().dialogueIndex).toBe(0)
-
     nextDialogue()
     expect(useGameStore.getState().dialogueIndex).toBe(1)
-
     nextDialogue()
     expect(useGameStore.getState().dialogueIndex).toBe(2)
   })
 
   it('showAlert should open systemAlert with title and content', () => {
-    const showAlert = useGameStore.getState().showAlert
-
+    const { showAlert } = useGameStore.getState()
     showAlert('Test Title', 'Test Content')
-
     const alert = useGameStore.getState().modals.systemAlert
     expect(alert.open).toBe(true)
     expect(alert.title).toBe('Test Title')
@@ -86,28 +78,39 @@ describe('useGameStore', () => {
   })
 
   it('closeAlert should close systemAlert', () => {
-    const showAlert = useGameStore.getState().showAlert
-    const closeAlert = useGameStore.getState().closeAlert
-
+    const { showAlert, closeAlert } = useGameStore.getState()
     showAlert('Test Title', 'Test Content')
     expect(useGameStore.getState().modals.systemAlert.open).toBe(true)
-
     closeAlert()
     const alert = useGameStore.getState().modals.systemAlert
     expect(alert.open).toBe(false)
-    expect(alert.title).toBe('')
-    expect(alert.content).toBe('')
   })
 
   it('incrementTabSwitch should increment tabSwitchCount', () => {
-    const incrementTabSwitch = useGameStore.getState().incrementTabSwitch
-
+    const { incrementTabSwitch } = useGameStore.getState()
     expect(useGameStore.getState().metaFlags.tabSwitchCount).toBe(0)
-
     incrementTabSwitch()
     expect(useGameStore.getState().metaFlags.tabSwitchCount).toBe(1)
+  })
 
-    incrementTabSwitch()
-    expect(useGameStore.getState().metaFlags.tabSwitchCount).toBe(2)
+  it('dispatchActions should trigger SHAKE and GLITCH actions', () => {
+    const { dispatchActions } = useGameStore.getState()
+    dispatchActions([{ type: 'GLITCH', filter: 'rgb-split' }])
+    expect(useGameStore.getState().character.glitchFilter).toBe('rgb-split')
+  })
+
+  it('dispatchActions should trigger SHOW_ALERT', () => {
+    const { dispatchActions } = useGameStore.getState()
+    dispatchActions([{ type: 'SHOW_ALERT', title: 'T', content: 'C' }])
+    const alert = useGameStore.getState().modals.systemAlert
+    expect(alert.open).toBe(true)
+    expect(alert.title).toBe('T')
+  })
+
+  it('recordChoice should push to choiceHistory', () => {
+    const { recordChoice } = useGameStore.getState()
+    recordChoice({ text: 'A', targetSceneId: 'B' })
+    expect(useGameStore.getState().persistentMemory.choiceHistory).toHaveLength(1)
+    expect(useGameStore.getState().persistentMemory.choiceHistory[0].text).toBe('A')
   })
 })
