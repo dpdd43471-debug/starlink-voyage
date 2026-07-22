@@ -1,7 +1,7 @@
 import { useScriptEngine } from '../hooks/useScriptEngine'
 import { useGameStore } from '../store/useGameStore'
 
-const HIJACKED_CHOICE = { text: '永远留在夏茉身边', targetSceneId: 'scene_p2_yandere_lock', conditionKey: null }
+const HIJACKED_CHOICE = { text: '永远留在夏茉身边', targetSceneId: 'scene_p2_stay_xiamo', conditionKey: null }
 
 export default function ChoiceOverlay() {
   const { dialogue, hasChoices, selectChoice } = useScriptEngine()
