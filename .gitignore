@@ -71,3 +71,8 @@ dist
 *.local
 .vite
 coverage
+
+# Playwright test artifacts
+playwright_screenshots_final/
+playwright_run.py
+run_test.py
