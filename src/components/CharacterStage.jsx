@@ -1,85 +1,94 @@
-import React from 'react'
+import { useGameStore } from '../store/useGameStore'
 
-// glitchType -> CSS 类名映射（对应 src/styles/glitch.css）
-export const GLITCH_CLASS = {
-  none: 'glitch-none',
-  shake: 'glitch-shake',
-  'rgb-split': 'glitch-rgb-split',
-  invert: 'glitch-invert',
+const GLITCH_CLASS = {
+  none: '',
+  shake: 'animate-glitch-shake',
+  'rgb-split': 'animate-glitch-rgb',
+  invert: 'filter invert contrast-[1.5] saturate-[2] animate-glitch-shake',
 }
 
-// 角色立绘舞台：承载 SVG 立绘并应用动态 glitch 滤镜
-export function CharacterStage({ glitchType = 'none', children }) {
-  const glitchClass = GLITCH_CLASS[glitchType] || GLITCH_CLASS.none
+export default function CharacterStage() {
+  const character = useGameStore((state) => state.character)
+  const stageEffects = useGameStore((state) => state.stageEffects)
+
+  const glitchClass = GLITCH_CLASS[character.glitchFilter] || ''
+
   return (
     <div
-      className="relative flex-1 flex items-end justify-center overflow-hidden min-h-[260px]"
-      data-testid="character-stage"
+      className={`relative w-full h-full flex items-center justify-center transition-all duration-200 ${
+        stageEffects.screenShake ? 'animate-screen-shake' : ''
+      }`}
     >
-      <div className={`relative ${glitchClass}`} data-testid="character-wrapper">
-        {children || <DefaultCharacter />}
+      {stageEffects.screenFlash && (
+        <div className="absolute inset-0 bg-white animate-screen-flash pointer-events-none z-50" />
+      )}
+      {stageEffects.vignetteDarkness > 0 && (
+        <div
+          className="absolute inset-0 pointer-events-none z-40"
+          style={{
+            background: `radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,${stageEffects.vignetteDarkness}) 100%)`,
+          }}
+        />
+      )}
+
+      <div className={`relative ${glitchClass}`}>
+        <svg
+          width="180"
+          height="220"
+          viewBox="0 0 180 220"
+          className="drop-shadow-lg"
+        >
+          <rect
+            x="20"
+            y="40"
+            width="140"
+            height="160"
+            rx="8"
+            fill="#1a1a2e"
+            stroke="#00ff41"
+            strokeWidth="2"
+          />
+          <rect
+            x="30"
+            y="50"
+            width="120"
+            height="30"
+            rx="4"
+            fill="#0a0a0f"
+            stroke="#008822"
+            strokeWidth="1"
+          />
+          <path
+            d="M 50 80 Q 90 120 130 80"
+            fill="none"
+            stroke="#00ff41"
+            strokeWidth="3"
+          />
+          <path
+            d="M 55 95 Q 90 135 125 95"
+            fill="none"
+            stroke="#008822"
+            strokeWidth="2"
+          />
+          <circle cx="65" cy="115" r="6" fill="#00ff41" />
+          <circle cx="115" cy="115" r="6" fill="#00ff41" />
+          <path
+            d="M 70 140 Q 90 155 110 140"
+            fill="none"
+            stroke="#00ff41"
+            strokeWidth="2"
+          />
+          <rect
+            x="55"
+            y="160"
+            width="70"
+            height="15"
+            rx="3"
+            fill="#008822"
+            opacity="0.5"
+          />
+        </svg>
       </div>
     </div>
   )
 }
-
-// 默认立绘：一个复古 SVG 回收站
-function DefaultCharacter() {
-  return (
-    <svg
-      width="180"
-      height="220"
-      viewBox="0 0 180 220"
-      data-testid="default-character"
-      aria-label="回收站立绘"
-    >
-      {/* 桶身 */}
-      <path
-        d="M30 60 L150 60 L135 210 L45 210 Z"
-        fill="#1a1a2e"
-        stroke="#39ff14"
-        strokeWidth="2"
-      />
-      {/* 桶盖 */}
-      <rect
-        x="20"
-        y="50"
-        width="140"
-        height="14"
-        rx="2"
-        fill="#1a1a2e"
-        stroke="#39ff14"
-        strokeWidth="2"
-      />
-      {/* 把手 */}
-      <rect
-        x="75"
-        y="40"
-        width="30"
-        height="8"
-        rx="2"
-        fill="none"
-        stroke="#39ff14"
-        strokeWidth="2"
-      />
-      {/* 回收符号 */}
-      <g stroke="#39ff14" strokeWidth="2" fill="none">
-        <path d="M70 110 L90 140 L110 110" />
-        <path d="M75 110 L65 110 M105 110 L115 110" />
-        <path d="M85 130 L80 120 M95 130 L100 120" />
-      </g>
-      <text
-        x="90"
-        y="180"
-        textAnchor="middle"
-        fill="#39ff14"
-        fontSize="10"
-        fontFamily="monospace"
-      >
-        RECYCLE
-      </text>
-    </svg>
-  )
-}
-
-export default CharacterStage
