@@ -1,6 +1,21 @@
 import { useScriptEngine } from '../hooks/useScriptEngine'
 import { useGameStore } from '../store/useGameStore'
 
+const SPEAKER_STYLES = {
+  夏茉: {
+    bg: 'bg-pink-500/20',
+    text: 'text-pink-300',
+    border: 'border-pink-500/40',
+    glow: 'gal-text-glow-pink',
+  },
+  凛: {
+    bg: 'bg-cyan-500/20',
+    text: 'text-cyan-300',
+    border: 'border-cyan-500/40',
+    glow: 'gal-text-glow-cyan',
+  },
+}
+
 export default function DialogueBox() {
   const { dialogue, currentText, isTyping, nextStep } = useScriptEngine()
   const sceneId = useGameStore((s) => s.sceneId)
@@ -10,71 +25,120 @@ export default function DialogueBox() {
   const showAlert = useGameStore((s) => s.showAlert)
 
   const shouldHijack = yandereLock || isHijacked
+  const speaker = dialogue?.speaker
+  const speakerStyle = speaker ? SPEAKER_STYLES[speaker] : null
 
-  const handleSaveClick = () => {
+  const handleSaveClick = (e) => {
+    e.stopPropagation()
     if (shouldHijack) {
       showAlert('警告', '夏茉：不需要存盘哦，因为我会一直陪着你。')
     }
   }
 
   return (
-    <div className="w-full bg-crt-bg border-t-2 border-crt-border p-4">
-      {shouldHijack && (
-        <div className="mb-2 flex items-center gap-2 text-crt-danger">
-          <span className="animate-pulse">!</span>
-          <span className="text-sm">SYSTEM LOCKED - YANDERE MODE ACTIVE</span>
-        </div>
-      )}
-
-      <div className="flex items-start gap-3 mb-2">
-        <span className="text-crt-amber font-bold min-w-[80px]">
-          {dialogue?.speaker || '——'}
-        </span>
-        <div className="flex-1" />
-      </div>
-
+    <div
+      className={`relative w-full px-6 pb-8 pt-4 transition-all duration-500 ${
+        shouldHijack ? '' : ''
+      }`}
+    >
       <div
-        className="text-crt-green text-base leading-relaxed cursor-pointer min-h-[60px]"
-        onClick={() => nextStep()}
+        className={`relative gal-glass-strong rounded-lg p-5 transition-all duration-500 ${
+          shouldHijack
+            ? 'border-red-500/60 danger-border-pulse'
+            : 'border-white/10 gal-border-glow-pink'
+        }`}
       >
-        {currentText}
-        {isTyping && <span className="animate-pulse">_</span>}
-      </div>
+        {shouldHijack && (
+          <div className="absolute -top-3 left-6 px-3 py-0.5 bg-red-500/90 text-white text-xs font-bold rounded animate-pulse z-10">
+            ⚠ SYSTEM LOCKED
+          </div>
+        )}
 
-      <div className="flex justify-between items-center mt-3 pt-2 border-t border-crt-gray">
-        <div className="flex gap-4">
-          {shouldHijack ? (
-            <>
-              <button
-                onClick={handleSaveClick}
-                className="text-crt-danger hover:text-red-500 transition-colors text-sm font-bold"
-              >
-                XiaMo
-              </button>
-              <button
-                onClick={handleSaveClick}
-                className="text-crt-danger hover:text-red-500 transition-colors text-sm font-bold"
-              >
-                XiaMo
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="text-crt-amber hover:text-crt-green transition-colors text-sm">
-                Save
-              </button>
-              <button className="text-crt-amber hover:text-crt-green transition-colors text-sm">
-                Load
-              </button>
-            </>
+        {speaker && (
+          <div
+            className={`absolute -top-4 left-6 px-4 py-1 rounded-full text-sm font-medium border transition-all duration-300 ${
+              shouldHijack
+                ? 'bg-red-500/30 text-red-300 border-red-500/50 rgb-split-text'
+                : speakerStyle
+                  ? `${speakerStyle.bg} ${speakerStyle.text} border ${speakerStyle.border} ${speakerStyle.glow}`
+                  : 'bg-white/10 text-gray-300 border-white/20'
+            }`}
+          >
+            {speaker}
+          </div>
+        )}
+
+        <div
+          className={`text-base leading-relaxed cursor-pointer min-h-[80px] pt-2 transition-all duration-300 ${
+            shouldHijack
+              ? 'text-red-300 rgb-split-text'
+              : 'text-gray-100'
+          }`}
+          style={{ textShadow: shouldHijack ? undefined : '0 1px 2px rgba(0,0,0,0.5)' }}
+          onClick={() => nextStep()}
+        >
+          {currentText}
+          {isTyping && (
+            <span className={`inline-block w-2 h-4 ml-1 align-middle ${shouldHijack ? 'bg-red-400' : 'bg-pink-400/70'} blink`} />
           )}
-          <button className="text-crt-amber hover:text-crt-green transition-colors text-sm">
-            Auto
-          </button>
         </div>
 
-        <div className="text-crt-gray text-xs">
-          {sceneId} - {dialogueIndex + 1}
+        <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
+          <div className="flex gap-2">
+            {shouldHijack ? (
+              <>
+                <button
+                  onClick={handleSaveClick}
+                  className="px-3 py-1 text-xs font-bold text-red-400 border border-red-500/50 rounded hover:bg-red-500/20 transition-all animate-pulse"
+                >
+                  XiaMo
+                </button>
+                <button
+                  onClick={handleSaveClick}
+                  className="px-3 py-1 text-xs font-bold text-red-400 border border-red-500/50 rounded hover:bg-red-500/20 transition-all animate-pulse"
+                >
+                  XiaMo
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation() }}
+                  className="gal-btn"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation() }}
+                  className="gal-btn"
+                >
+                  Load
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation() }}
+                  className="gal-btn"
+                >
+                  Auto
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation() }}
+                  className="gal-btn"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation() }}
+                  className="gal-btn"
+                >
+                  Log
+                </button>
+              </>
+            )}
+          </div>
+
+          <div className={`text-xs ${shouldHijack ? 'text-red-500/60' : 'text-gray-500'}`}>
+            {sceneId.replace('scene_', '')} · {dialogueIndex + 1}
+          </div>
         </div>
       </div>
     </div>

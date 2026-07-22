@@ -4,7 +4,8 @@ import { useScriptEngine } from './hooks/useScriptEngine'
 import { useMetaListeners } from './hooks/useMetaListeners'
 import { useAudioManager } from './hooks/useAudioManager'
 import { initAudio, getAudioContextState } from './utils/audioSynthesizer'
-import CharacterStage from './components/CharacterStage'
+import CharacterSprite from './components/assets/CharacterSprite'
+import BackgroundStage from './components/assets/BackgroundStage'
 import DialogueBox from './components/DialogueBox'
 import ChoiceOverlay from './components/ChoiceOverlay'
 import SystemAlertModal from './components/SystemAlertModal'
@@ -13,13 +14,14 @@ import EndingOverlay from './components/EndingOverlay'
 
 export default function App() {
   const sceneId = useGameStore((s) => s.sceneId)
+  const character = useGameStore((s) => s.character)
   const metaFlags = useGameStore((s) => s.metaFlags)
+  const stageEffects = useGameStore((s) => s.stageEffects)
   const playthroughCount = useGameStore((s) => s.persistentMemory.playthroughCount)
   const worldVersion = useGameStore((s) => s.persistentMemory.worldVersion)
   const isHijacked = useGameStore((s) => s.persistentMemory.isHijacked)
   const openTerminal = useGameStore((s) => s.openTerminal)
   const unlockedEnding = useGameStore((s) => s.persistentMemory.unlockedEnding)
-  const showAlert = useGameStore((s) => s.showAlert)
   const resetGame = useGameStore((s) => s.resetGame)
 
   const [audioReady, setAudioReady] = useState(false)
@@ -41,7 +43,8 @@ export default function App() {
     setRestartConfirmOpen(true)
   }
 
-  const confirmRestart = () => {
+  const confirmRestart = (e) => {
+    e.stopPropagation()
     resetGame()
     setRestartConfirmOpen(false)
   }
@@ -72,47 +75,86 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [openTerminal])
 
-  const bgImage = scene?.bgImage || 'default.png'
-  const bgm = scene?.bgm || ''
+  const yandereLock = metaFlags.yandereLock
+  const shouldHijack = yandereLock || isHijacked
 
   return (
     <div
-      className="min-h-screen bg-crt-bg flex flex-col relative overflow-hidden"
+      className={`min-h-screen flex flex-col relative overflow-hidden transition-all duration-1000 ${
+        shouldHijack ? 'crt-scanlines' : ''
+      }`}
+      style={{ backgroundColor: '#0f0d14' }}
       onClick={handleFirstInteraction}
       onKeyDown={handleFirstInteraction}
     >
-      <div className="crt-scanlines absolute inset-0 pointer-events-none opacity-10" />
+      <BackgroundStage sceneId={sceneId} stageEffects={stageEffects} />
 
-      <header className="border-b-2 border-crt-border bg-[#050508] px-4 py-2 flex justify-between items-center relative z-10">
-        <div className="flex items-center gap-2">
-          <span className="text-crt-green font-bold text-lg">RECYCLE BIN</span>
-          <span className="text-crt-gray text-xs">v{worldVersion} · P{playthroughCount}</span>
+      <header className="relative z-20 px-6 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <span
+            className={`font-bold text-lg tracking-wide transition-all duration-500 ${
+              shouldHijack
+                ? 'text-red-400 rgb-split-text'
+                : 'text-white/90'
+            }`}
+            style={{ textShadow: shouldHijack ? undefined : '0 0 20px rgba(255,158,199,0.3)' }}
+          >
+            回收站里的告白
+          </span>
+          <span className={`text-xs ${shouldHijack ? 'text-red-500/60' : 'text-white/30'}`}>
+            v{worldVersion} · P{playthroughCount}
+          </span>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-crt-gray">
+        <div className="flex items-center gap-3 text-xs">
           <span
-            className={audioReady ? 'text-crt-green' : 'text-crt-gray/60'}
+            className={`transition-colors duration-300 ${
+              audioReady
+                ? shouldHijack ? 'text-red-400' : 'text-pink-300/80'
+                : 'text-white/25'
+            }`}
             title={audioReady ? 'Audio active' : 'Click to enable audio'}
           >
             {audioReady ? '♪ Audio' : '♪ Click to enable'}
           </span>
-          <span>Tab: {metaFlags.tabSwitchCount}</span>
+
+          {metaFlags.tabSwitchCount > 0 && (
+            <span className={shouldHijack ? 'text-red-400/70' : 'text-white/40'}>
+              Tab: {metaFlags.tabSwitchCount}
+            </span>
+          )}
+
           {isHijacked && (
-            <span className="text-crt-danger animate-pulse">LOCKED</span>
+            <span className="text-red-400 animate-pulse font-bold tracking-wider">
+              LOCKED
+            </span>
           )}
+
           {metaFlags.devToolsOpened && (
-            <span className="text-crt-amber">DEV TOOLS</span>
+            <span className={shouldHijack ? 'text-red-400' : 'text-amber-400/80'}>
+              DEV TOOLS
+            </span>
           )}
+
           <button
             onClick={handleRestart}
-            className="text-crt-amber hover:text-crt-danger transition-colors border border-crt-border px-2 py-0.5 rounded"
-            title="重新开始游戏（清空所有进度）"
+            className={`px-2.5 py-1 rounded text-xs transition-all duration-300 border ${
+              shouldHijack
+                ? 'text-red-400/70 border-red-500/30 hover:text-red-300 hover:border-red-400/50 hover:bg-red-500/10'
+                : 'text-white/50 border-white/10 hover:text-pink-300 hover:border-pink-400/30 hover:bg-pink-500/10'
+            }`}
+            title="重新开始游戏"
           >
             ↻ Restart
           </button>
+
           <button
-            onClick={openTerminal}
-            className="text-crt-green hover:text-crt-amber transition-colors border border-crt-border px-2 py-0.5 rounded"
+            onClick={(e) => { e.stopPropagation(); openTerminal() }}
+            className={`px-2.5 py-1 rounded text-xs transition-all duration-300 border ${
+              shouldHijack
+                ? 'text-red-400/70 border-red-500/30 hover:text-red-300 hover:border-red-400/50'
+                : 'text-cyan-300/70 border-cyan-500/20 hover:text-cyan-200 hover:border-cyan-400/40 hover:bg-cyan-500/10'
+            }`}
             title="Ctrl+` to open"
           >
             Terminal
@@ -120,37 +162,46 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full relative">
-        <div className="flex-1 p-4 relative">
-          <CharacterStage />
-          <ChoiceOverlay />
-        </div>
+      <main className="flex-1 flex flex-col max-w-5xl mx-auto w-full relative z-10">
+        <div className="flex-1 relative overflow-hidden">
+          <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
+            <CharacterSprite character={character} />
+          </div>
 
-        <div className="text-crt-gray text-xs px-4 py-1 border-t border-crt-gray">
-          [BG: {bgImage}] [BGM: {bgm}] [Scene: {sceneId}]
+          {stageEffects.screenShake && (
+            <div className="absolute inset-0 animate-screen-shake pointer-events-none" />
+          )}
+
+          <ChoiceOverlay />
         </div>
 
         <DialogueBox />
       </main>
 
       {restartConfirmOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-[#0a0a0f] border-2 border-crt-border p-6 max-w-md mx-4">
-            <h3 className="text-crt-danger text-lg font-bold mb-3">⚠ 确认重新开始？</h3>
-            <p className="text-crt-gray text-sm mb-4">
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm"
+          onClick={(e) => { e.stopPropagation(); setRestartConfirmOpen(false) }}
+        >
+          <div
+            className="gal-glass border border-white/10 rounded-lg p-6 max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-pink-300 text-lg font-bold mb-3">确认重新开始？</h3>
+            <p className="text-gray-400 text-sm mb-5 leading-relaxed">
               所有进度、选择历史和 Meta 标记将被清空。<br />
               此操作无法撤销。
             </p>
             <div className="flex gap-3 justify-end">
               <button
-                onClick={(e) => { e.stopPropagation(); setRestartConfirmOpen(false) }}
-                className="px-4 py-1.5 border border-crt-border text-crt-green hover:border-crt-amber hover:text-crt-amber transition-colors"
+                onClick={() => setRestartConfirmOpen(false)}
+                className="px-4 py-1.5 border border-white/10 text-gray-300 rounded hover:border-white/30 hover:text-white transition-all text-sm"
               >
                 取消
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); confirmRestart() }}
-                className="px-4 py-1.5 border border-crt-danger text-crt-danger hover:bg-crt-danger/10 transition-colors"
+                onClick={confirmRestart}
+                className="px-4 py-1.5 border border-pink-500/40 text-pink-300 rounded hover:bg-pink-500/20 hover:border-pink-400/60 transition-all text-sm"
               >
                 确认重置
               </button>
