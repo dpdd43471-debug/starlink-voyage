@@ -6,11 +6,17 @@ import CharacterStage from './components/CharacterStage'
 import DialogueBox from './components/DialogueBox'
 import ChoiceOverlay from './components/ChoiceOverlay'
 import SystemAlertModal from './components/SystemAlertModal'
+import TerminalModal from './components/TerminalModal'
+import EndingOverlay from './components/EndingOverlay'
 
 export default function App() {
   const sceneId = useGameStore((s) => s.sceneId)
   const metaFlags = useGameStore((s) => s.metaFlags)
   const playthroughCount = useGameStore((s) => s.persistentMemory.playthroughCount)
+  const worldVersion = useGameStore((s) => s.persistentMemory.worldVersion)
+  const isHijacked = useGameStore((s) => s.persistentMemory.isHijacked)
+  const openTerminal = useGameStore((s) => s.openTerminal)
+  const unlockedEnding = useGameStore((s) => s.persistentMemory.unlockedEnding)
 
   useMetaListeners()
   const { scene } = useScriptEngine()
@@ -30,6 +36,17 @@ export default function App() {
     document.title = titles[sceneId] || '回收站里的告白'
   }, [sceneId])
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === '`' && e.ctrlKey) {
+        e.preventDefault()
+        openTerminal()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [openTerminal])
+
   const bgImage = scene?.bgImage || 'default.png'
   const bgm = scene?.bgm || ''
 
@@ -40,17 +57,24 @@ export default function App() {
       <header className="border-b-2 border-crt-border bg-[#050508] px-4 py-2 flex justify-between items-center relative z-10">
         <div className="flex items-center gap-2">
           <span className="text-crt-green font-bold text-lg">RECYCLE BIN</span>
-          <span className="text-crt-gray text-xs">v3.0.0 · P{playthroughCount}</span>
+          <span className="text-crt-gray text-xs">v{worldVersion} · P{playthroughCount}</span>
         </div>
 
         <div className="flex items-center gap-4 text-xs text-crt-gray">
           <span>Tab: {metaFlags.tabSwitchCount}</span>
-          {metaFlags.yandereLock && (
+          {isHijacked && (
             <span className="text-crt-danger animate-pulse">LOCKED</span>
           )}
           {metaFlags.devToolsOpened && (
             <span className="text-crt-amber">DEV TOOLS</span>
           )}
+          <button
+            onClick={openTerminal}
+            className="text-crt-green hover:text-crt-amber transition-colors border border-crt-border px-2 py-0.5 rounded"
+            title="Ctrl+` to open"
+          >
+            Terminal
+          </button>
         </div>
       </header>
 
@@ -68,6 +92,8 @@ export default function App() {
       </main>
 
       <SystemAlertModal />
+      <TerminalModal />
+      {unlockedEnding && <EndingOverlay />}
     </div>
   )
 }

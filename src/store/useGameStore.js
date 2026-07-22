@@ -37,6 +37,8 @@ export const useGameStore = create(
         hasCompletedXiaMoRoute: false,
         betrayedXiaMo: false,
         isHijacked: false,
+        unlockedEnding: null,
+        worldVersion: '1.0',
       },
 
       modals: {
@@ -46,6 +48,14 @@ export const useGameStore = create(
           content: '',
         },
         terminalOpen: false,
+      },
+
+      openTerminal: () => {
+        set({ modals: { ...get().modals, terminalOpen: true } })
+      },
+
+      closeTerminal: () => {
+        set({ modals: { ...get().modals, terminalOpen: false } })
       },
 
       setScene: (newSceneId) => {
@@ -120,6 +130,21 @@ export const useGameStore = create(
 
       setHijacked: (value) => {
         set({ persistentMemory: { ...get().persistentMemory, isHijacked: value } })
+      },
+
+      unlockEnding: (endingId) => {
+        set({ persistentMemory: { ...get().persistentMemory, unlockedEnding: endingId } })
+      },
+
+      setWorldVersion: (version) => {
+        set({ persistentMemory: { ...get().persistentMemory, worldVersion: version } })
+      },
+
+      purgeLock: () => {
+        set({
+          metaFlags: { ...get().metaFlags, yandereLock: false },
+          persistentMemory: { ...get().persistentMemory, isHijacked: false },
+        })
       },
 
       setBetrayedXiaMo: (value) => {
@@ -233,7 +258,7 @@ export const useGameStore = create(
     }),
     {
       name: 'recycle-bin-confession-storage',
-      version: 3,
+      version: 4,
       migrate: (persistedState) => {
         const base = persistedState || {}
         return {
@@ -255,6 +280,8 @@ export const useGameStore = create(
             hasCompletedXiaMoRoute: base.persistentMemory?.hasCompletedXiaMoRoute || false,
             betrayedXiaMo: base.persistentMemory?.betrayedXiaMo || false,
             isHijacked: false,
+            unlockedEnding: null,
+            worldVersion: base.persistentMemory?.worldVersion || '1.0',
           },
         }
       },
