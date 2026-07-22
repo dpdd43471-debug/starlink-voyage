@@ -188,6 +188,28 @@ export const useGameStore = create(
         })
       },
 
+      resetGame: () => {
+        set({
+          sceneId: 'scene_p1_convenience_store',
+          dialogueIndex: 0,
+          isAutoPlaying: false,
+          character: { id: null, expression: 'neutral', position: 'center', glitchFilter: 'none' },
+          stageEffects: { screenShake: false, screenFlash: false, screenRedFlash: false, vignetteDarkness: 0 },
+          metaFlags: { tabSwitchCount: 0, yandereLock: false, devToolsOpened: false },
+          persistentMemory: {
+            visitedScenes: [],
+            choiceHistory: [],
+            refreshCount: 0,
+            playthroughCount: 1,
+            hasCompletedXiaMoRoute: false,
+            betrayedXiaMo: false,
+            isHijacked: false,
+            unlockedEnding: null,
+            worldVersion: '1.0',
+          },
+        })
+      },
+
       showAlert: (title, content) => {
         set({ modals: { ...get().modals, systemAlert: { open: true, title, content } } })
       },

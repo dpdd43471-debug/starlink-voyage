@@ -19,8 +19,11 @@ export default function App() {
   const isHijacked = useGameStore((s) => s.persistentMemory.isHijacked)
   const openTerminal = useGameStore((s) => s.openTerminal)
   const unlockedEnding = useGameStore((s) => s.persistentMemory.unlockedEnding)
+  const showAlert = useGameStore((s) => s.showAlert)
+  const resetGame = useGameStore((s) => s.resetGame)
 
   const [audioReady, setAudioReady] = useState(false)
+  const [restartConfirmOpen, setRestartConfirmOpen] = useState(false)
 
   useMetaListeners()
   useAudioManager()
@@ -31,6 +34,16 @@ export default function App() {
       const ok = initAudio()
       setAudioReady(ok || getAudioContextState() === 'running')
     }
+  }
+
+  const handleRestart = (e) => {
+    e.stopPropagation()
+    setRestartConfirmOpen(true)
+  }
+
+  const confirmRestart = () => {
+    resetGame()
+    setRestartConfirmOpen(false)
   }
 
   useEffect(() => {
@@ -91,6 +104,13 @@ export default function App() {
             <span className="text-crt-amber">DEV TOOLS</span>
           )}
           <button
+            onClick={handleRestart}
+            className="text-crt-amber hover:text-crt-danger transition-colors border border-crt-border px-2 py-0.5 rounded"
+            title="重新开始游戏（清空所有进度）"
+          >
+            ↻ Restart
+          </button>
+          <button
             onClick={openTerminal}
             className="text-crt-green hover:text-crt-amber transition-colors border border-crt-border px-2 py-0.5 rounded"
             title="Ctrl+` to open"
@@ -112,6 +132,32 @@ export default function App() {
 
         <DialogueBox />
       </main>
+
+      {restartConfirmOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-[#0a0a0f] border-2 border-crt-border p-6 max-w-md mx-4">
+            <h3 className="text-crt-danger text-lg font-bold mb-3">⚠ 确认重新开始？</h3>
+            <p className="text-crt-gray text-sm mb-4">
+              所有进度、选择历史和 Meta 标记将被清空。<br />
+              此操作无法撤销。
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={(e) => { e.stopPropagation(); setRestartConfirmOpen(false) }}
+                className="px-4 py-1.5 border border-crt-border text-crt-green hover:border-crt-amber hover:text-crt-amber transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); confirmRestart() }}
+                className="px-4 py-1.5 border border-crt-danger text-crt-danger hover:bg-crt-danger/10 transition-colors"
+              >
+                确认重置
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SystemAlertModal />
       <TerminalModal />
